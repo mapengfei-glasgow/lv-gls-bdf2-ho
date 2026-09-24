@@ -55,12 +55,14 @@ python tools/compare_runs.py results --ref-git HEAD      # 默认容差 1e-10
 ## 5. 真实 LV 网格（Dalton 数据集）
 
 `mesh/dalton_geom_0000/` 来自 huggingface.co/datasets/mapengfei/dalton-lv-meshes（geom_0000）。其他几何可以用 `bash mesh/download_dalton.command 0007` 下载。
-这个网格的坐标单位是 cm，长轴为 $x$，基底在 $x=0$；面标签 5 = 基底、6 = 内膜、7 = 外膜；纤维和 sheet 逐单元存储，都是单位向量且相互正交，所以参考构形无应力。
-它和默认参数兼容，运行命令（尚未运行过）：
+这个网格的坐标单位是 cm，长轴为 $x$，基底在 $x=0$ 平面（meta.json 里的 `base_z` 名称有误导）；面标签 5 = 基底、6 = 内膜、7 = 外膜，所有边界面都有标签；四面体全部正向。
 
-```bash
-python -m lvsolver.run --method gls --tau pdf --include-fs --mesh mesh/dalton_geom_0000 --out results_dalton/geom_0000
-```
+**纤维场有问题，暂不能用于计算。** 纤维、sheet、normal 在每个单元上都是单位向量且两两正交，所以参考构形无应力；但纤维方向和几何对不上：
+只有 42% 的心室中段单元的纤维落在心壁切平面 30° 以内（理想网格为 97–100%），螺旋角沿透壁方向没有变化（约 +2°，理想网格为 +46° → −49°），
+相邻单元的纤维一致性（中位数 0.37）甚至低于随机单元对（0.54）。尝试过按顶点编号重排单元、48 种坐标轴置换加符号，都不能修复。
+这说明纤维数组与单元的对应关系（或所用的坐标系）在生成数据集时出了错，需要从数据集生成端修正，或者在这个几何上重新生成规则纤维。
+
+检查工具：`python tools/check_mesh.py mesh/<dir> --strict`。`run_dalton.command` 会先运行这项检查，不通过就停止（设置 `FORCE=1` 可强制运行）。
 
 ## 6. 分享给别人
 

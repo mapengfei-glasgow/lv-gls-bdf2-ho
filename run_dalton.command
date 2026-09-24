@@ -13,6 +13,14 @@ source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate "${2:-lv0d3d}" || exit 1
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1
 [ -f "$MESH/dalton_lv_mesh.xdmf" ] || bash mesh/download_dalton.command "$G" || exit 1
+# Fibre geometry must be plausible (tangent to the wall, helix rotation endo->epi); FORCE=1 overrides.
+if ! python tools/check_mesh.py "$MESH" --strict; then
+  if [ "${FORCE:-0}" != "1" ]; then
+    echo "ABORT: fibre field of $MESH is not consistent with the geometry (see above). Run with FORCE=1 to run anyway."
+    [ -t 0 ] && read -r -p "Enter to close"; exit 1
+  fi
+  echo "FORCE=1: running despite the fibre check"
+fi
 rm -rf "$OUT"; mkdir -p "$OUT"; t0=$SECONDS
 echo "running $OUT (log: $OUT/log.txt) ..."
 python -m lvsolver.run --method gls --tau pdf --include-fs --mesh "$MESH" --out "$OUT" > "$OUT/log.txt" 2>&1
