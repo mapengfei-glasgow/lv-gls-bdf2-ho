@@ -1,0 +1,10 @@
+{
+  "geom": 0,
+  "split": "train",
+  "local_index": 0,
+  "nodes": 11779,
+  "tets": 59940,
+  "wall_volume_cm3": 102.208468,
+  "base_z": 0.00028244,
+  "file": "dalton_lv_mesh.xdmf"
+}

@@ -73,6 +73,10 @@ bash run_all.command            # 或在 Finder 里双击
 - `validation.json`：`python -m lvsolver.verify` 的独立检查结果。对 P1 输出，从 VTU 节点场重建 BE/BDF2 递推、$J$、$\bar J$、$\mathrm{RMS}(J-1)$、动能和稳定尺度。
 - `vtk/<method>.pvd`：ParaView 打开，含位移、速度、压力、$J$、纤维，GLS 另有 $\mu_{\text{eff}}, \tau_m, \tau_c$ 或 $\tau$。不纳入 git。
 
+## 复现、取数据与分享
+
+见 `REPRODUCE.md`：环境、三个运行脚本、结果核对、每类数据对应的文件，以及如何打包发给别人。
+
 ## 结构
 
 ```
@@ -83,9 +87,13 @@ lvsolver/problems.py   P1Penalty / Lagrange / GLS
 lvsolver/run.py        命令行、逐步诊断、CSV/VTU 输出
 lvsolver/verify.py     独立校验与 summary.md
 tools/compare_runs.py  两次运行的 monitor.csv 对比
+tools/convergence.py   网格加密汇总、精确腔体体积 cavity_volume
 tools/generate_mesh.py 生成 lv_aha17_v2_plain 网格（需 gmsh），例：
                        python tools/generate_mesh.py --mesh-size 1.0 \
                          --xdmf mesh/lv_plain_h1.0/lv_aha17_v2_plain_mesh.xdmf --out /tmp/lv_bin
+mesh/                  lv_aha17_v2_plain（972 单元）、dalton_geom_0000（真实 LV）、download_dalton.command
+convergence.command    网格加密研究 -> results_convergence/
+paper/sec46_lv/        论文 4.6 节：tex、图、数据、run_paper_case.command -> results_paper/
 ```
 
 ## 解释范围

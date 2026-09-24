@@ -20,3 +20,5 @@ paper/**/figures/*.png
 results_paper/*/vtk/
 results_paper/*/log.txt
 results_paper/*/verify.txt
+# share archives
+dist/
