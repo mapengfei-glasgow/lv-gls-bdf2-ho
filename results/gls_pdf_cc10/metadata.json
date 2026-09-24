@@ -11,12 +11,12 @@
   "c_t": 1.5,
   "c_s": 3.0,
   "C_tau": 0.03,
-  "C_c": 0.1,
-  "include_fs_stiffness": true,
+  "C_c": 10.0,
+  "include_fs_stiffness": false,
   "positive_part_epsilon": 1e-12,
   "material": "ho_pdf",
   "dt_s": 0.005,
-  "requested_steps": 3,
+  "requested_steps": 200,
   "material_parameters": {
     "a": 224.487,
     "b": 1.6215,
@@ -42,5 +42,5 @@
   "base_constraint": "axial/tangential penalty gamma_top; radial free",
   "dolfinx": "0.11.0",
   "status": "completed",
-  "completed_steps": 3
+  "completed_steps": 200
 }

@@ -21,7 +21,10 @@ CASES=(
   "lagrange|--method lagrange --beta 1e6"
   "lagrange_pure|--method lagrange --beta 0"
   "gls_pdf|--method gls --tau pdf"
-  "gls_pdf_fs_3steps|--method gls --tau pdf --include-fs --steps 3"
+  "gls_pdf_fs|--method gls --tau pdf --include-fs"
+  "gls_pdf_cc1|--method gls --tau pdf --cc 1"
+  "gls_pdf_cc10|--method gls --tau pdf --cc 10"
+  "gls_pdf_cc100|--method gls --tau pdf --cc 100"
   "gls_reference|--method gls --tau reference"
   "gls_reference_nostab_3steps|--method gls --tau reference --no-stab --steps 3"
 )

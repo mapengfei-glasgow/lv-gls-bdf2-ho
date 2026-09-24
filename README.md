@@ -48,9 +48,9 @@ conda env create -n lv0d3d -f environment.yml
 bash run_all.command            # 或在 Finder 里双击
 ```
 
-`run_all.command` 依次运行 7 个算例、逐个校验，然后写 `results/summary.md`，
+`run_all.command` 依次运行 10 个算例、逐个校验，然后写 `results/summary.md`，
 并与上一次提交的 `results/*/monitor.csv` 逐列比较（`tools/compare_runs.py`，默认容差 $10^{-10}$）。
-在 macOS arm64 上，7 个算例总共约 4 分钟。
+在 macOS arm64 上总共约 5 分钟。
 
 | 算例 | 命令参数 |
 |---|---|
@@ -58,7 +58,8 @@ bash run_all.command            # 或在 Finder 里双击
 | `lagrange` | `--method lagrange --beta 1e6` |
 | `lagrange_pure` | `--method lagrange --beta 0` |
 | `gls_pdf` | `--method gls --tau pdf` |
-| `gls_pdf_fs_3steps` | `--method gls --tau pdf --include-fs --steps 3` |
+| `gls_pdf_fs` | `--method gls --tau pdf --include-fs`（PDF §2.2，$\mu_{\text{eff}}$ 计入 fs） |
+| `gls_pdf_cc1` / `cc10` / `cc100` | `--method gls --tau pdf --cc 1` / `10` / `100`（LSIC 强度扫描，默认 $C_c=0.1$） |
 | `gls_reference` | `--method gls --tau reference` |
 | `gls_reference_nostab_3steps` | `--method gls --tau reference --no-stab --steps 3` |
 
@@ -92,3 +93,7 @@ tools/generate_mesh.py 生成 lv_aha17_v2_plain 网格（需 gmsh），例：
 - 腔体体积 $V$ 是对内膜自由度点做 Delaunay 剖分后得到的估计值。$P_2$ 内膜点集是退化点集，剖分不唯一，所以 `lagrange` 的 $V$ 在不同平台（qhull 版本）之间可相差约 4%。在同一平台上结果可以逐位复现。
 - 速率约束和弱约束都允许局部体积误差：SNES 收敛不代表逐点 $J=1$，$\bar J\approx1$ 也掩盖不了局部误差，要看 $J$ 的极值和 $\mathrm{RMS}(J-1)$。
 - P1 单元内强残量没有计入单元间应力跳跃项。单次周期不能替代网格和时间步收敛研究，也不能替代实验验证。
+- 敏感性（`run_all` 的 10 个算例）：
+  - 在 $\mu_{\text{eff}}$ 中计入 fs 项（`gls_pdf_fs`）几乎不影响解：$V$ 相差 < 0.1%，$J$ 极值和 $\mathrm{RMS}(J-1)$ 相差 < 1%，压力极值相差 < 5%。
+  - GLS 结果对 LSIC 强度很敏感：$C_c$ 从 0.1 增大到 100 时，$\max\mathrm{RMS}(J-1)$ 从 0.198 降到 0.102，末时刻 $V$ 变化 10%。可见在这套网格上，GLS 的解还受稳定参数控制，没有达到网格无关。
+  - 即使 $C_c=100$（$\tau_c/\Delta t\sim10^6$ Pa，与 `lagrange` 的 $\beta$ 同量级），GLS 的 $\mathrm{RMS}(J-1)$ 仍比 `lagrange`/`p1` 大约 4 倍，而且收缩期过后不会回落（0.08 → 0.10；`lagrange` 为 0.024 → 0.006）。原因是速率约束 $\mathbf H:\nabla\mathbf v$ 只惩罚体积变化率，对已经累积的 $J-1$ 没有恢复力。要改善这一点，需要在约束中加入 $J-1$ 项（相应地，稳定项的时间尺度要除以 $\Delta t$ 配平）。
