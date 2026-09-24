@@ -1,0 +1,16 @@
+env 3.12.13 dolfinx 0.11.0 ufl 2026.1.0 petsc (3, 25, 5) float64
+[p1_plain] exit=0 9s
+[lagrange_aug] exit=0 89s
+[lagrange_pure] exit=0 94s
+[gls_full] exit=0 29s
+[gls_verify] exit=0 0s
+[gls_smoke] exit=0 2s
+[gls_nostab] exit=0 9s
+[gls_nostab_verify] exit=0 0s
+[ho_smoke] exit=0 2s
+[ho_smoke_v] exit=0 0s
+[ho_smoke_fs] exit=0 14s
+[ho_smoke_fs_v] exit=0 0s
+[ho_full] exit=0 14s
+[ho_full_v] exit=0 1s
+[ho_plot] exit=0 9s

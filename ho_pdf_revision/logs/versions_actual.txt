@@ -1,4 +1,1 @@
-hwloc/linux: failed to find sysfs cpu topology directory, aborting linux discovery.
-hwloc/linux: failed to find sysfs cpu topology directory, aborting linux discovery.
-[1789950123.391472] [localhost:18   :0]       tcp_iface.c:984  UCX  ERROR scandir(/sys/class/net) failed: No such file or directory
 {'dolfinx': '0.11.0', 'ufl': '2026.1.0', 'basix': '0.11.0', 'numpy': '2.5.3', 'scipy': '1.18.1', 'meshio': '5.3.5'}

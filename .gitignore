@@ -18,3 +18,4 @@ out_*/
 output/
 runs/**/*.zip
 run_all_*.log
+rerun_*.log

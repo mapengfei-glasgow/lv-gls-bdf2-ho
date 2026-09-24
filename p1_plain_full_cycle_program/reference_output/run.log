@@ -1,9 +1,6 @@
 [plain-p1] Reading XDMF LV mesh from /Users/pengfei/Downloads/lv_gls_bdf2_ho_pdf/p1_plain_full_cycle_program/mesh_plain ...
-ld: warning: duplicate -rpath '/Users/pengfei/miniconda3/envs/lv0d3d/lib' ignored
-ld: warning: duplicate -rpath '/Users/pengfei/miniconda3/envs/lv0d3d/lib' ignored
-ld: warning: duplicate -rpath '/Users/pengfei/miniconda3/envs/lv0d3d/lib' ignored
 [Mesh] 972 cells, 324 nodes | x∈[-0.0959,0.0265] y∈[-0.0350,0.0350] z∈[-0.0350,0.0350]
-[plain-p1] base_center=(0.02536, 0.0, 0.0), steps=200, dt=0.005, output=/Users/pengfei/Downloads/lv_gls_bdf2_ho_pdf/runs/20260924_012845/p1_plain
+[plain-p1] base_center=(0.02536, 0.0, 0.0), steps=200, dt=0.005, output=/Users/pengfei/Downloads/lv_gls_bdf2_ho_pdf/p1_plain_full_cycle_program/reference_output
   0 SNES Function norm 3.761056873978e-02
   1 SNES Function norm 4.111838984690e-04
   2 SNES Function norm 6.862241694682e-10
@@ -1000,5 +997,5 @@ Step 197 converged in 2 iterations, reason=2
 Step 198 converged in 2 iterations, reason=2
 Step 199 converged in 2 iterations, reason=2
 [plain-p1] t= 1.0000 s | p_endo=  1.0670 kPa | Ta=  0.0000 kPa | V= 252.1898 mL | J=[0.9427,1.0696]
-[plain-p1] Saved /Users/pengfei/Downloads/lv_gls_bdf2_ho_pdf/runs/20260924_012845/p1_plain/monitor_plain_p1_full_cycle.csv
+[plain-p1] Saved /Users/pengfei/Downloads/lv_gls_bdf2_ho_pdf/p1_plain_full_cycle_program/reference_output/monitor_plain_p1_full_cycle.csv
 [plain-p1] Done.
