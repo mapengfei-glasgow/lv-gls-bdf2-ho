@@ -43,9 +43,10 @@ one() {
     note="$(grep -m1 -oE 'Step [0-9]+ failed[^,]*|nonpositive[^\n]*|Error[^\n]*' "$d/log.txt" | head -c 120)"
     log solve_failed "${note:-see log.txt}"
   else
-    ( cd "$ROOT" && python -m lvsolver.verify "$d" ) > "$d/verify.txt" 2>&1 || note="verify failed"
+    local ok=ok
+    ( cd "$ROOT" && python -m lvsolver.verify "$d" ) > "$d/verify.txt" 2>&1 || { ok=verify_failed; note="see verify.txt"; }
     if ( cd "$ROOT" && python paper/sec46_lv/extract_data.py "$d" "$d/timeseries.csv" ) > "$d/summary.json.tmp" 2>&1; then
-      mv "$d/summary.json.tmp" "$d/summary.json"; log ok "$note"
+      mv "$d/summary.json.tmp" "$d/summary.json"; log "$ok" "$note"
     else
       mv "$d/summary.json.tmp" "$d/extract.log"; log extract_failed "see extract.log"
     fi
