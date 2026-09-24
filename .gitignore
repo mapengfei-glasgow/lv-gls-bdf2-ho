@@ -17,3 +17,4 @@ runs/**/vtk/
 out_*/
 output/
 runs/**/*.zip
+run_all_*.log

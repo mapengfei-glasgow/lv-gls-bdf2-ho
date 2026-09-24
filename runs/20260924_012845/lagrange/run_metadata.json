@@ -1,0 +1,7 @@
+{
+  "method": "P2/P1 augmented Lagrange incompressibility",
+  "augmentation_Pa": 1000000.0,
+  "dt_s": 0.005,
+  "steps": 200,
+  "mesh_scale": 0.01
+}

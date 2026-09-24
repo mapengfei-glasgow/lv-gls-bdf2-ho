@@ -1,0 +1,4 @@
+>>> [p1_plain] exit=0  47 s
+>>> [lagrange] exit=0  101 s
+>>> [gls_hopdf] exit=0  31 s
+>>> [gls verify] exit=0
