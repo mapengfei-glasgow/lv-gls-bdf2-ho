@@ -1,0 +1,94 @@
+# LV 动态固体力学：P1 罚函数 / P2-P1 Lagrange / P1-P1 GLS
+
+理想化左心室（`mesh/lv_aha17_v2_plain`，972 个 P1 四面体，cm → m）在给定载荷下的一个心动周期
+（$\Delta t = 0.005$ s，200 步）。三种体积约束离散共用同一个模型，差别只在单元、未知量和不可压缩处理。
+
+## 共同模型
+
+$$
+\rho\,\ddot{\mathbf u} - \nabla\!\cdot\!\big(\mathbf P_{\text{pas}} + \mathbf P_{\text{vis}} + \mathbf P_{\text{act}}\big) = \mathbf 0,
+\qquad \mathbf F = \mathbf I + \nabla \mathbf u,\ J = \det \mathbf F,\ \mathbf H = \operatorname{cof}\mathbf F .
+$$
+
+- 被动：Holzapfel–Ogden，$W = W_1(\bar I_1) + W_4(I_{4f}) + W_4(I_{4s}) + W_8(I_{8fs})$。
+  - `ho`：$I_{4f}, I_{4s}, I_{8fs}$ 用等容 $\bar{\mathbf C}$，纤维开关为光滑 Heaviside（原 LV 程序）。
+  - `ho_pdf`：只有 $I_1$ 等容，其余用原始 $\mathbf C$；开关为 $\xi = \tfrac12\big(x+\sqrt{x^2+\varepsilon}\big)$，$x = I_4-1$，$\varepsilon=10^{-12}$（GLS PDF）。
+- 黏性：$W_{\text{vis}} = \tfrac{\eta}{2}\operatorname{tr}(\dot{\mathbf E}^2)$，$\eta = 100$ Pa·s。
+- 主动：$\mathbf P_{\text{act}} = T_a(t)\,\big(1 + 4.9(\sqrt{\bar I_{4f}}-1)\big)\,\mathbf F\,\mathbf f_0\otimes\mathbf f_0$。
+- 载荷：内膜随动压力 $p_{\text{endo}}(t)$（式 79），主动张力 $T_a(t)$（式 80），见 `lvsolver/model.py`。
+- 边界：心外膜法向阻尼 $\beta_{\text{epi}} = 5\times10^3$；基底罚项 $\gamma = 10^6$，约束轴向位移，面内只允许沿参考径向运动。
+- $\rho = 10^3\ \text{kg/m}^3$，材料常数见 `model.CONSTITUTIVE_PARAMS`。
+
+## 三种方法
+
+| `--method` | 未知量 / 单元 | 体积项 | 时间离散 |
+|---|---|---|---|
+| `p1` | $\mathbf u\in P_1$ | 罚能 $W_c = \tfrac{\kappa}{4}(J^2-1-2\ln J)$，$\kappa=10^6$ Pa | $\mathbf a = (\mathbf u-\mathbf u_n-\Delta t\,\mathbf v_n)/\Delta t^2$ |
+| `lagrange` | $(\mathbf u,p)\in P_2\times P_1$ | $-p\,\mathbf H + \tfrac{\beta}{2}(J-1)^2$，$\int q\,(J-1)=0$ | 同上 |
+| `gls` | $(\mathbf v,p)\in P_1\times P_1$ | 速率约束 $R_p = \mathbf H:\nabla\mathbf v = 0$，加 PSPG + LSIC | 首步 BE，之后 BDF2 |
+
+`lagrange`：`--beta 1e6`（增强，默认）或 `--beta 0`（纯乘子）。
+
+`gls`：强残量 $\mathbf R_m = \rho\mathbf a - \nabla\!\cdot\!\mathbf P$，稳定项
+$S_c = \int \tau_c\,(\mathbf H:\nabla\mathbf w)\,R_p$（加在速度方程），
+$S_m = \int \tau_m\,(\mathbf H\nabla q)\cdot\mathbf R_m$（加在压力方程）。$h$ 取单元直径。
+
+- `--tau pdf`（默认，材料 `ho_pdf`）：
+  $\omega = c_t\rho/\Delta t + c_s\,\mu_{\text{eff}}\Delta t/h^2$，$\tau_m = C_\tau/\omega$，$\tau_c = C_c h^2\omega$，
+  $\mu_{\text{eff}} = a e^{b(\bar I_1-3)} + 2a_f\xi_f e^{b_f\xi_f^2} + 2a_s\xi_s e^{b_s\xi_s^2}$（`--include-fs` 再加 fs 项）。
+  默认 $c_t=1.5,\ c_s=3,\ C_\tau=0.03,\ C_c=0.1$。
+- `--tau reference`（材料 `ho`）：上传 GLS 求解器的原式 $\tau = 1/(c_1\mu_{\text{ref}}/h^2 + c_2\rho/\Delta t^2)$，
+  $\mu_{\text{ref}} = a+a_f+a_s+a_{fs}$，两项共用；量纲未配平，只作对照。
+- `--no-stab`：稳定项只作诊断，不进方程（Galerkin 对照）；此时可用 `--velocity-degree 2`（P2/P1）。
+
+## 运行
+
+```bash
+conda env create -n lv0d3d -f environment.yml
+bash run_all.command            # 或在 Finder 里双击
+```
+
+`run_all.command` 依次运行 7 个算例、逐个校验，然后写 `results/summary.md`，
+并与上一次提交的 `results/*/monitor.csv` 逐列比较（`tools/compare_runs.py`，默认容差 $10^{-10}$）。
+在 macOS arm64 上，7 个算例总共约 4 分钟。
+
+| 算例 | 命令参数 |
+|---|---|
+| `p1` | `--method p1` |
+| `lagrange` | `--method lagrange --beta 1e6` |
+| `lagrange_pure` | `--method lagrange --beta 0` |
+| `gls_pdf` | `--method gls --tau pdf` |
+| `gls_pdf_fs_3steps` | `--method gls --tau pdf --include-fs --steps 3` |
+| `gls_reference` | `--method gls --tau reference` |
+| `gls_reference_nostab_3steps` | `--method gls --tau reference --no-stab --steps 3` |
+
+单个算例：`python -m lvsolver.run --method gls --tau pdf --out results/my_case`，
+全部参数见 `python -m lvsolver.run -h`。
+
+## 输出（`results/<case>/`）
+
+- `monitor.csv`：每步的 $V$、$J$ 在单元中心和五阶求积点上的极值、$\mathrm{RMS}(J-1)$、$\bar J$、$|\mathbf u|_{\max}$、$|\mathbf v|_{\max}$、压力范围、动能、Newton 次数；GLS 另有各残量范数。
+- `metadata.json`：方法、参数、网格、状态。
+- `validation.json`：`python -m lvsolver.verify` 的独立检查结果。对 P1 输出，从 VTU 节点场重建 BE/BDF2 递推、$J$、$\bar J$、$\mathrm{RMS}(J-1)$、动能和稳定尺度。
+- `vtk/<method>.pvd`：ParaView 打开，含位移、速度、压力、$J$、纤维，GLS 另有 $\mu_{\text{eff}}, \tau_m, \tau_c$ 或 $\tau$。不纳入 git。
+
+## 结构
+
+```
+lvsolver/model.py      载荷曲线、材料常数、SNES/MUMPS 选项
+lvsolver/mesh.py       XDMF 网格与纤维读取、基底中心、腔体体积
+lvsolver/material.py   HolzapfelOgden / HolzapfelOgdenPDF
+lvsolver/problems.py   P1Penalty / Lagrange / GLS
+lvsolver/run.py        命令行、逐步诊断、CSV/VTU 输出
+lvsolver/verify.py     独立校验与 summary.md
+tools/compare_runs.py  两次运行的 monitor.csv 对比
+tools/generate_mesh.py 生成 lv_aha17_v2_plain 网格（需 gmsh），例：
+                       python tools/generate_mesh.py --mesh-size 1.0 \
+                         --xdmf mesh/lv_plain_h1.0/lv_aha17_v2_plain_mesh.xdmf --out /tmp/lv_bin
+```
+
+## 解释范围
+
+- 腔体体积 $V$ 是对内膜自由度点做 Delaunay 剖分后得到的估计值。$P_2$ 内膜点集是退化点集，剖分不唯一，所以 `lagrange` 的 $V$ 在不同平台（qhull 版本）之间可相差约 4%。在同一平台上结果可以逐位复现。
+- 速率约束和弱约束都允许局部体积误差：SNES 收敛不代表逐点 $J=1$，$\bar J\approx1$ 也掩盖不了局部误差，要看 $J$ 的极值和 $\mathrm{RMS}(J-1)$。
+- P1 单元内强残量没有计入单元间应力跳跃项。单次周期不能替代网格和时间步收敛研究，也不能替代实验验证。

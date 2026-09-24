@@ -1,21 +1,8 @@
-# macOS / Python
 .DS_Store
 __pycache__/
 *.pyc
-# archives, local conda installs
 *.zip
-miniconda3/
-env_gls/
-Miniconda3.sh
-# heavy VTK frames (keep json/csv/png/logs)
-*.vtu
-*.pvtu
-*.pvd
-*.bp/
-# new run outputs
-runs/**/vtk/
-out_*/
-output/
-runs/**/*.zip
-run_all_*.log
-rerun_*.log
+# heavy / noisy run outputs (monitor.csv, metadata.json, validation.json are tracked)
+results/*/vtk/
+results/*/log.txt
+results/*/verify.txt

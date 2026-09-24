@@ -1,0 +1,37 @@
+{
+  "method": "lagrange",
+  "velocity_degree": 2,
+  "time_scheme": "be",
+  "element": "P2/P1 Taylor-Hood (u, p)",
+  "augmentation_Pa": 0.0,
+  "volumetric": "pressure multiplier -p cof(F) + beta/2 (J-1)^2; test eq. q (J-1)",
+  "material": "ho",
+  "dt_s": 0.005,
+  "requested_steps": 200,
+  "material_parameters": {
+    "a": 224.487,
+    "b": 1.6215,
+    "a_f": 2426.7,
+    "b_f": 1.8268,
+    "a_s": 556.238,
+    "b_s": 0.7746,
+    "a_fs": 390.51599999999996,
+    "b_fs": 1.695,
+    "kappa": 1000000.0,
+    "eta": 100.0,
+    "k": 100.0
+  },
+  "rho_kg_m3": 1000.0,
+  "mesh": "lv_aha17_v2_plain",
+  "mesh_scale": 0.01,
+  "long_axis": "x",
+  "base_center_m": [
+    0.025360294117647057,
+    2.42861286636753e-17,
+    1.1449174941446927e-16
+  ],
+  "base_constraint": "axial/tangential penalty gamma_top; radial free",
+  "dolfinx": "0.11.0",
+  "status": "completed",
+  "completed_steps": 200
+}

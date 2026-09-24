@@ -1,0 +1,15 @@
+# conda env create -n lv0d3d -f environment.yml   (tested: osx-arm64, 2026-09)
+name: lv0d3d
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - fenics-dolfinx=0.11.0
+  - petsc=*=real*
+  - mpi4py
+  - numpy
+  - scipy
+  - h5py
+  - meshio=5.3.5
+  - gmsh            # only for tools/generate_mesh.py
+  - python-gmsh
