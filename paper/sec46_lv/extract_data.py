@@ -33,7 +33,8 @@ def main(d, out):
     g = lambda k: np.array([float(r[k]) for r in rows])
     frames = ET.parse(next((d / "vtk").glob("*.pvd"))).findall(".//DataSet")
     P = meshio.read(d / "vtk" / frames[0].attrib["file"]).points
-    mdir = Path(meta["mesh_path"]) if Path(meta.get("mesh_path", "")).is_dir() else ROOT / "mesh" / meta["mesh"]
+    mp = meta.get("mesh_path")
+    mdir = Path(mp) if mp and Path(mp).is_dir() else ROOT / "mesh" / meta["mesh"]
     with h5py.File(next(mdir.glob("*_mesh.h5")), "r") as f:
         xyz = f["Mesh/mesh/geometry"][:] * meta["mesh_scale"]
         ft = f["MeshTags/facet_tags/topology"][:]
