@@ -11,3 +11,9 @@ mesh/lv_plain_h*/
 results_convergence/*/vtk/
 results_convergence/*/log.txt
 results_convergence/*/verify.txt
+# paper build products
+paper/**/*.aux
+paper/**/*.log
+paper/**/*.fls
+paper/**/*.fdb_latexmk
+paper/**/figures/*.png
