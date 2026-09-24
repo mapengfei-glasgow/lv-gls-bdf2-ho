@@ -97,3 +97,7 @@ tools/generate_mesh.py 生成 lv_aha17_v2_plain 网格（需 gmsh），例：
   - 在 $\mu_{\text{eff}}$ 中计入 fs 项（`gls_pdf_fs`）几乎不影响解：$V$ 相差 < 0.1%，$J$ 极值和 $\mathrm{RMS}(J-1)$ 相差 < 1%，压力极值相差 < 5%。
   - GLS 结果对 LSIC 强度很敏感：$C_c$ 从 0.1 增大到 100 时，$\max\mathrm{RMS}(J-1)$ 从 0.198 降到 0.102，末时刻 $V$ 变化 10%。可见在这套网格上，GLS 的解还受稳定参数控制，没有达到网格无关。
   - 局部体积误差主要由局部体积刚度决定，和单元类型关系不大：`lagrange_pure`（P2/P1，$\beta=0$）的 $\max\mathrm{RMS}(J-1)=0.33$，比 `gls_pdf` 还大；`lagrange`（$\beta=10^6$）和 `p1`（$\kappa=10^6$）好，是因为有 $10^6$ Pa 的局部刚度。约束写成速率形式还是 $J-1$ 形式影响有多大，现有算例还不能单独区分。
+- 网格加密（`convergence.command`，`gls --tau pdf`，$C_c=0.1$，5 级网格 899–21707 个单元，见 `results_convergence/convergence.md`）：
+  - 全局量大致收敛：用曲面积分计算的腔体体积 $V(1\,\mathrm s)$ 依次为 355 / 372 / 376 / 388 / 390 mL，末两级相差 1.3%。
+  - 局部不可压缩性不收敛：$\max\mathrm{RMS}(J-1)$ 依次为 0.197 / 0.187 / 0.166 / 0.361 / 0.371，$J_{\max}$ 从 1.85 增大到 3.03。在最细一级上，误差分布在收缩期约 29% 的心肌体积里，不是只集中在基底或心尖；舒张期的 RMS 仍在 0.08 左右。
+  - `monitor.csv` 里的 `V_mL` 是 Delaunay 估计，大变形下不可靠（加密研究中各级之间最多相差 2 倍），改用 `tools/convergence.py` 中的 `cavity_volume`。
