@@ -112,7 +112,8 @@ def main(argv=None):
 
     metadata = dict(problem.configuration, material=material_name, dt_s=args.dt, requested_steps=nsteps,
                     material_parameters=CONSTITUTIVE_PARAMS, rho_kg_m3=problem.parameters["rho"],
-                    mesh=Path(args.mesh).name, mesh_scale=args.scale, long_axis=args.long_axis,
+                    mesh=Path(args.mesh).name, mesh_path=str(Path(args.mesh).resolve()),
+                    mesh_scale=args.scale, long_axis=args.long_axis,
                     base_center_m=[float(c) for c in center],
                     base_constraint="axial/tangential penalty gamma_top; radial free",
                     dolfinx=dolfinx_version, status="running", completed_steps=0)

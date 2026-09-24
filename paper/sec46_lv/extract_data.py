@@ -33,7 +33,8 @@ def main(d, out):
     g = lambda k: np.array([float(r[k]) for r in rows])
     frames = ET.parse(next((d / "vtk").glob("*.pvd"))).findall(".//DataSet")
     P = meshio.read(d / "vtk" / frames[0].attrib["file"]).points
-    with h5py.File(next((ROOT / "mesh" / meta["mesh"]).glob("*_mesh.h5")), "r") as f:
+    mdir = Path(meta["mesh_path"]) if Path(meta.get("mesh_path", "")).is_dir() else ROOT / "mesh" / meta["mesh"]
+    with h5py.File(next(mdir.glob("*_mesh.h5")), "r") as f:
         xyz = f["Mesh/mesh/geometry"][:] * meta["mesh_scale"]
         ft = f["MeshTags/facet_tags/topology"][:]
         fv = f["MeshTags/facet_tags/Values"][:].ravel()
@@ -69,7 +70,8 @@ def main(d, out):
     print(json.dumps(dict(
         mesh=meta["mesh"], cells_band=[len(eb), len(pb)], include_fs=meta.get("include_fs_stiffness"),
         steps=len(rows), newton_max=int(g("newton_iterations").max()),
-        newton_counts={k: int((g("newton_iterations") == k).sum()) for k in range(1, 7) if (g("newton_iterations") == k).any()},
+        newton_counts={k: int((g("newton_iterations") == k).sum()) for k in range(1, int(g("newton_iterations").max()) + 1)
+                       if (g("newton_iterations") == k).any()},
         max_residual=float(g("total_residual_norm").max()), V_ref=V0, V_ED=Vv[ed], t_ES=t[es], V_ES=Vv[es],
         EF=100 * (Vv[ed] - Vv[es]) / Vv[ed], L0=1e3 * L[0], L_ED=1e3 * Ll[ed], L_ES=1e3 * Ll[es],
         shortening=100 * (Ll[ed] - Ll[es]) / Ll[ed], T0=1e3 * T[0], T_ED=1e3 * Tt[ed], T_ES=1e3 * Tt[es],

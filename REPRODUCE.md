@@ -66,6 +66,8 @@ python tools/compare_runs.py results --ref-git HEAD      # 默认容差 1e-10
 （P1 Laplace 透壁坐标，螺旋角内膜 +60° → 外膜 −60°，sheet 取透壁方向，约定与理想网格相同，约 2 秒）。
 生成的网格通过检查：切平面内 100%，螺旋角 +44° → −46°，相邻一致性 0.99。它属于生成网格，不纳入 git。
 
+批量处理整个数据集（服务器）：`bash tools/batch_dalton.sh DATA_DIR OUT_DIR JOBS [ID ...]`，汇总：`python tools/collect_dalton.py OUT_DIR DATA_DIR`。
+
 检查工具：`python tools/check_mesh.py mesh/<dir> --strict`。`run_dalton.command` 会先生成规则纤维、再运行这项检查，不通过就停止（设置 `FORCE=1` 可强制运行）。
 
 ## 6. 分享给别人

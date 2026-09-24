@@ -28,7 +28,7 @@ def cavity_volume(d):
     d = Path(d)
     meta = json.loads((d / "metadata.json").read_text())
     ax = "xyz".index(meta["long_axis"])
-    mdir = ROOT / "mesh" / meta["mesh"]
+    mdir = Path(meta["mesh_path"]) if Path(meta.get("mesh_path", "")).is_dir() else ROOT / "mesh" / meta["mesh"]
     h5 = next(mdir.glob("*_mesh.h5"))
     with h5py.File(h5, "r") as f:
         xyz = f["Mesh/mesh/geometry"][:] * meta["mesh_scale"]
