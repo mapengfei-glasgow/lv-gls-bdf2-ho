@@ -1,0 +1,30 @@
+{
+  "mode": "none_p1p1",
+  "velocity_degree": 1,
+  "pressure_degree": 1,
+  "time_scheme": "bdf2",
+  "c1": 1.0,
+  "c2": 2.0,
+  "mu_ref_Pa": 3597.941,
+  "mu_ref_definition": "a+a_f+a_s+a_fs reference-scale proxy unless overridden",
+  "tau_min": 8.730408077861373e-09,
+  "tau_max": 1.2205275815705825e-08,
+  "h_min_m": 0.01020591925736772,
+  "h_max_m": 0.04315667101606657,
+  "pressure_constraint": "cofac(F):grad(v)",
+  "augmentation_Pa": 0.0,
+  "formulation": "uploaded reference GLS terms; dimensional scaling not corrected",
+  "OSS": false,
+  "dt_s": 0.005,
+  "requested_steps": 3,
+  "long_axis": "x",
+  "base_center_m": [
+    0.025360294117647057,
+    2.42861286636753e-17,
+    1.1449174941446927e-16
+  ],
+  "base_constraint": "original axial/tangential penalty; radial free",
+  "mesh_scale": 0.01,
+  "status": "completed",
+  "completed_steps": 3
+}

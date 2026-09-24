@@ -1,0 +1,13 @@
+{
+  "steps": 200,
+  "end_time_s": 1.0,
+  "max_Newton_iterations": 11,
+  "J_quadrature_min": 0.8577280315794613,
+  "J_quadrature_max": 1.1161089616981672,
+  "max_J_minus_1_RMS": 0.024205802056636614,
+  "V_min_mL": 160.81525799089198,
+  "V_max_mL": 278.63372982048077,
+  "V_final_mL": 267.5270349329592,
+  "max_displacement_m": 0.03722456619134145,
+  "VTK_frames_read_back": 200
+}

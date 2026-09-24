@@ -1,0 +1,318 @@
+--- a/material_ho_pdf.py
++++ b/material_ho_pdf.py
+@@ -0,0 +1,43 @@
++"""Passive HO energy and GLS scalar stiffness from the supplied PDF, pp. 1-2."""
++import ufl
++from material import HolzapfelOgden
++
++
++class HolzapfelOgdenPDF(HolzapfelOgden):
++    epsilon = 1e-12
++
++    def invariants_pdf(self, F):
++        C = F.T * F
++        return (ufl.det(F)**(-2.0/3.0) * ufl.tr(C),
++                ufl.inner(self.f0, C*self.f0),
++                ufl.inner(self.s0, C*self.s0),
++                ufl.inner(self.f0, C*self.s0))
++
++    def positive_part(self, x):
++        return 0.5 * (x + ufl.sqrt(x*x + self.epsilon))
++
++    def W_4(self, I4, direction):
++        if direction not in ("f", "s"):
++            raise ValueError("direction must be f or s")
++        a = self.a_f if direction == "f" else self.a_s
++        b = self.b_f if direction == "f" else self.b_s
++        xi = self.positive_part(I4 - 1)
++        return a/(2*b) * (ufl.exp(b*xi**2) - 1)
++
++    def passive_energy_pdf(self, F):
++        I1, I4f, I4s, I8fs = self.invariants_pdf(F)
++        # W_1 differs from the printed energy only by a constant.
++        return self.W_1(I1) + self.W_4(I4f, "f") + self.W_4(I4s, "s") + self.W_8(I8fs)
++
++    def strain_energy_1(self, F):
++        return self.passive_energy_pdf(F) + self.W_compress(ufl.det(F))
++
++    def effective_stiffness(self, F, include_fs=False):
++        I1, I4f, I4s, I8fs = self.invariants_pdf(F)
++        xf, xs = self.positive_part(I4f-1), self.positive_part(I4s-1)
++        mu = (self.a*ufl.exp(self.b*(I1-3))
++              + 2*self.a_f*xf*ufl.exp(self.b_f*xf**2)
++              + 2*self.a_s*xs*ufl.exp(self.b_s*xs**2))
++        if include_fs:
++            mu += 2*self.a_fs*ufl.sqrt(I8fs**2+self.epsilon)*ufl.exp(self.b_fs*I8fs**2)
++        return mu
+--- a/solidmechanics_gls.py
++++ b/solidmechanics_gls.py
+@@ -1,9 +1,4 @@
+-"""Experimental DOLFINx port of the uploaded velocity-pressure BDF2 GLS.
+-
+-The two stabilization terms and tau are transcribed from the supplied solver.
+-The LV material, inertia, viscous/active stresses and boundary loads are retained.
+-This is a reference-form port, not a claim of a dimensionally verified GLS theory.
+-"""
++"""Velocity-pressure BE/BDF2 with PDF HO stiffness and separate PSPG/LSIC scales."""
+ import os
+ import basix.ufl
+ import numpy as np
+@@ -85,17 +80,27 @@
+         gal_v = self._acceleration_form(self.a_expr, self.u_test)
+         gal_v += self._form(self.u_expr, self.v_expr, self.u_test)
+         gal_p = self.R_p*self.p_test*self.dx
+-        self.c1 = float(os.environ.get("LV_GLS_C1", "1"))
+-        self.c2 = float(os.environ.get("LV_GLS_C2", "2"))
+-        # An explicit reference-scale proxy, NOT an anisotropic tangent modulus.
+-        proxy = sum(float(getattr(self.material, name).value) for name in ("a", "a_f", "a_s", "a_fs"))
+-        self.mu_ref = float(os.environ.get("LV_GLS_MU_REF", str(proxy)))
+-        if self.c1 <= 0 or self.c2 <= 0 or self.mu_ref <= 0:
+-            raise ValueError("c1, c2 and mu_ref must be positive")
++        self.c_t = float(os.environ.get("LV_GLS_CT", "1.5"))
++        self.c_s = float(os.environ.get("LV_GLS_CS", "3.0"))
++        self.C_tau = float(os.environ.get("LV_GLS_CTAU", "0.03"))
++        self.C_c = float(os.environ.get("LV_GLS_CC", "0.1"))
++        include_fs = os.environ.get("LV_GLS_INCLUDE_FS", "0")
++        if include_fs not in ("0", "1"):
++            raise ValueError("LV_GLS_INCLUDE_FS must be 0 or 1")
++        self.include_fs = include_fs == "1"
++        if not all(np.isfinite(x) and x > 0 for x in (self.c_t, self.c_s)):
++            raise ValueError("c_t and c_s must be finite and positive")
++        if not all(np.isfinite(x) and x >= 0 for x in (self.C_tau, self.C_c)):
++            raise ValueError("C_tau and C_c must be finite and nonnegative")
++        if any(key in os.environ for key in ("LV_GLS_C1", "LV_GLS_C2", "LV_GLS_MU_REF")):
++            raise ValueError("Old GLS scale options removed; use CT, CS, CTAU, CC, INCLUDE_FS")
+         h = ufl.CellDiameter(mesh)
+-        self.tau = 1/(self.c1*self.mu_ref/h**2 + self.c2*self.parameters["rho"]/dt**2)
+-        self.stab_lsic = self.tau*ufl.inner(H, ufl.grad(self.u_test))*self.R_p*self.dx
+-        self.stab_pspg = self.tau*ufl.inner(self.R_mom, H*ufl.grad(self.p_test))*self.dx
++        self.mu_eff = self.material.effective_stiffness(F, include_fs=self.include_fs)
++        self.omega = self.c_t*self.parameters["rho"]/dt + self.c_s*self.mu_eff*dt/h**2
++        self.tau_m = self.C_tau/self.omega
++        self.tau_c = self.C_c*h**2*self.omega
++        self.stab_lsic = self.tau_c*ufl.inner(H, ufl.grad(self.u_test))*self.R_p*self.dx
++        self.stab_pspg = self.tau_m*ufl.inner(H*ufl.grad(self.p_test), self.R_mom)*self.dx
+         residual = gal_v+gal_p
+         if self.mode == "gls":
+             residual += self.stab_lsic+self.stab_pspg
+@@ -113,17 +118,18 @@
+         self._rate_squared = fem.form(self.R_p**2*self.dx)
+         self._reference_volume = fem.assemble_scalar(fem.form(1.0*self.dx))
+         V0 = fem.functionspace(mesh, ("DG", 0))
+-        hfun, tfun = fem.Function(V0), fem.Function(V0)
++        hfun = fem.Function(V0)
+         hfun.interpolate(fem.Expression(h,V0.element.interpolation_points))
+-        tfun.interpolate(fem.Expression(self.tau,V0.element.interpolation_points))
+         self.configuration = dict(mode=self.mode, velocity_degree=self.degree, pressure_degree=1,
+-            time_scheme=self.time_scheme, c1=self.c1, c2=self.c2, mu_ref_Pa=self.mu_ref,
+-            mu_ref_definition="a+a_f+a_s+a_fs reference-scale proxy unless overridden",
+-            tau_min=float(hfun.function_space.mesh.comm.allreduce(tfun.x.array.min(),op=MPI.MIN)),
+-            tau_max=float(hfun.function_space.mesh.comm.allreduce(tfun.x.array.max(),op=MPI.MAX)),
+-            h_min_m=float(hfun.x.array.min()),h_max_m=float(hfun.x.array.max()),
+-            pressure_constraint="cofac(F):grad(v)",augmentation_Pa=0.0,
+-            formulation="uploaded reference GLS terms; dimensional scaling not corrected", OSS=False)
++            time_scheme=self.time_scheme, c_t=self.c_t, c_s=self.c_s,
++            C_tau=self.C_tau, C_c=self.C_c, include_fs_stiffness=self.include_fs,
++            mu_eff_definition="PDF HO deformation-dependent scalar scale (not full tangent tensor)",
++            h_min_m=float(mesh.comm.allreduce(hfun.x.array.min(), op=MPI.MIN)),
++            h_max_m=float(mesh.comm.allreduce(hfun.x.array.max(), op=MPI.MAX)),
++            pressure_constraint="cofac(F):grad(v)", augmentation_Pa=0.0,
++            material_invariants="I1 is isochoric; I4f/I4s/I8fs use raw C",
++            positive_part_epsilon=self.material.epsilon,
++            formulation="PDF separate PSPG/LSIC scales with retained rate constraint", OSS=False)
+ 
+     def solve(self, step):
+         self._set_coefficients(step>0 and self.time_scheme=="bdf2")
+--- a/run_gls_vtk_cycle.py
++++ b/run_gls_vtk_cycle.py
+@@ -1,4 +1,4 @@
+-"""LV BDF2 P1/P1 reference GLS experiment; incremental VTK and diagnostics."""
++"""LV BDF2 P1/P1 PDF HO GLS experiment; incremental VTK and diagnostics."""
+ import csv
+ import json
+ import os
+@@ -16,6 +16,7 @@
+ # Reuse the existing mesh defaults and loading definitions without running it.
+ from run_lagrange_vtk_cycle import HERE, base, HolzapfelOgden, LeftVentricleCapacity
+ from solidmechanics_gls import SolidMechanicsProblem_GLS
++from material_ho_pdf import HolzapfelOgdenPDF
+ 
+ 
+ def write_pvd(vtk_dir, times):
+@@ -44,10 +45,11 @@
+     center=base.compute_base_center(mesh,io.bdry,markers["base"],MPI.COMM_WORLD)
+     config={"SOLVER_PARAMS":base.SOLVER_PARAMS,"TIME_PARAMS":base.TIME_PARAMS,"MARKERS":markers,
+             "GEOMETRY":{"long_axis":os.environ["SIMPLE_3D0D_LONG_AXIS"],"base_center":tuple(center)}}
+-    material=HolzapfelOgden(io.f0,io.s0,mesh,parameters=base.CONSTITUTIVE_PARAMS)
++    material=HolzapfelOgdenPDF(io.f0,io.s0,mesh,parameters=base.CONSTITUTIVE_PARAMS)
+     problem=SolidMechanicsProblem_GLS(io,material,config,
+         {"4":lambda t:base.p_endo_kPa(t)*1000,"5":lambda t:base.Ta_kPa(t)*1000})
+     metadata=dict(problem.configuration,dt_s=dt,requested_steps=nsteps,
++                  material_parameters=base.CONSTITUTIVE_PARAMS, rho_kg_m3=problem.parameters["rho"],
+                   long_axis=os.environ["SIMPLE_3D0D_LONG_AXIS"],base_center_m=list(center),
+                   base_constraint="original axial/tangential penalty; radial free",
+                   mesh_scale=float(os.environ["SIMPLE_3D0D_MESH_SCALE"]),status="running",completed_steps=0)
+@@ -78,8 +80,9 @@
+     jerr=fem.form((j-1)**2*io.dx)
+     jmean=fem.form(j*io.dx)
+     kinetic=fem.form(0.5*problem.parameters["rho"]*ufl.inner(problem.velocity,problem.velocity)*io.dx)
+-    tau_fun=fem.Function(V0)
+-    tau_fun.interpolate(fem.Expression(problem.tau,V0.element.interpolation_points))
++    scales = {name: (fem.Function(V0), fem.Expression(expr, V0.element.interpolation_points))
++              for name, expr in {"mu_eff_Pa": problem.mu_eff,
++                                 "tau_m": problem.tau_m, "tau_c": problem.tau_c}.items()}
+     fields=["time_s","p_endo_kPa","Ta_kPa","V_mL","J_min","J_max","J_minus_1_RMS","J_mean",
+             "max_u_m","max_v_m_per_s","p_min_Pa","p_max_Pa","kinetic_energy_J",
+             "newton_iterations","snes_reason","galerkin_p_norm","pspg_norm","lsic_norm",
+@@ -94,6 +97,11 @@
+                 problem.update_time_dependent_values(t)
+                 problem.solve(step)
+                 Jfun.interpolate(jexpr)
++                # Evaluate with the converged state BEFORE shifting BDF2 history.
++                for scale_fun, scale_expr in scales.values():
++                    scale_fun.interpolate(scale_expr)
++                    if not np.isfinite(scale_fun.x.array).all() or scale_fun.x.array.min() < 0:
++                        raise RuntimeError(f"Invalid stabilization scale at step {step}")
+                 jq=jquad.eval(mesh,local_cells)
+                 if not np.isfinite(jq).all() or jq.min()<=0:
+                     raise RuntimeError(f"Nonpositive or nonfinite J at step {step}")
+@@ -113,7 +121,7 @@
+                     raise RuntimeError(f"Nonfinite output at step {step}")
+                 frame=meshio.Mesh(points,cells,
+                     point_data={"displacement":u,"velocity":v,"lagrange_pressure_Pa":p_out.x.array[pmap].copy()},
+-                    cell_data={"J":[Jfun.x.array[jmap].copy()],"tau_reference_GLS":[tau_fun.x.array[jmap].copy()],
++                    cell_data={"J":[Jfun.x.array[jmap].copy()],**{name: [fun.x.array[jmap].copy()] for name, (fun, _) in scales.items()},
+                                "f0":[io.f0.x.array.reshape(-1,3)[fmap].copy()],
+                                "s0":[io.s0.x.array.reshape(-1,3)[fmap].copy()]})
+                 meshio.write(vtk_dir/f"gls_{step:05d}.vtu",frame)
+--- a/verify_gls_results.py
++++ b/verify_gls_results.py
+@@ -48,6 +48,29 @@
+         D0=reference[:,1:,:]-reference[:,:1,:]
+         D1=deformed[:,1:,:]-deformed[:,:1,:]
+         j_reconstructed=np.linalg.det(D1)/np.linalg.det(D0)
++        if 'material_parameters' in metadata:
++            # Independent reconstruction from exported nodal displacement, not UFL.
++            F=np.swapaxes(np.linalg.solve(D0,D1),1,2)
++            C=np.swapaxes(F,1,2) @ F
++            f0,s0=frame.cell_data['f0'][0],frame.cell_data['s0'][0]
++            I1=j_reconstructed**(-2/3)*np.trace(C,axis1=1,axis2=2)
++            I4f=np.einsum('ni,nij,nj->n',f0,C,f0)
++            I4s=np.einsum('ni,nij,nj->n',s0,C,s0)
++            I8=np.einsum('ni,nij,nj->n',f0,C,s0)
++            eps=metadata['positive_part_epsilon']
++            xf=.5*(I4f-1+np.sqrt((I4f-1)**2+eps))
++            xs=.5*(I4s-1+np.sqrt((I4s-1)**2+eps))
++            m=metadata['material_parameters']
++            mu=(m['a']*np.exp(m['b']*(I1-3))
++                +2*m['a_f']*xf*np.exp(m['b_f']*xf**2)
++                +2*m['a_s']*xs*np.exp(m['b_s']*xs**2))
++            if metadata['include_fs_stiffness']:
++                mu+=2*m['a_fs']*np.sqrt(I8**2+eps)*np.exp(m['b_fs']*I8**2)
++            h=np.max(np.linalg.norm(reference[:,:,None,:]-reference[:,None,:,:],axis=-1),axis=(1,2))
++            omega=metadata['c_t']*metadata['rho_kg_m3']/dt+metadata['c_s']*mu*dt/h**2
++            for name,expected in {'mu_eff_Pa':mu,'tau_m':metadata['C_tau']/omega,
++                                  'tau_c':metadata['C_c']*h**2*omega}.items():
++                np.testing.assert_allclose(frame.cell_data[name][0],expected,rtol=1e-8,atol=1e-12)
+         max_j_error=max(max_j_error,float(np.abs(j_reconstructed-frame.cell_data['J'][0]).max()))
+         assert j_reconstructed.min()>0
+         vol=np.abs(np.linalg.det(D0))/6
+@@ -64,6 +87,7 @@
+     assert max_j_error<1e-9,max_j_error
+     assert max_energy_error<1e-9,max_energy_error
+     summary=dict(frames=len(rows),end_time_s=float(rows[-1]['time_s']),
++        independent_HO_scales_checked=('material_parameters' in metadata),
+         all_steps_converged=True,max_newton_iterations=max(int(r['newton_iterations']) for r in rows),
+         J_min=min(float(r['J_min']) for r in rows),J_max=max(float(r['J_max']) for r in rows),
+         maximum_J_RMS=max(float(r['J_minus_1_RMS']) for r in rows),
+--- a/install_miniconda.sh
++++ b/install_miniconda.sh
+@@ -1,13 +1,14 @@
+ #!/usr/bin/env bash
+ set -euo pipefail
+ cd "$(dirname "$0")"
+-# Linux x86_64; install only inside this project by default.
+-PREFIX="${MINICONDA_PREFIX:-$PWD/miniconda3}"
+-if [ ! -x "$PREFIX/bin/conda" ]; then
+-    curl -fL -o Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+-    bash Miniconda3.sh -b -p "$PREFIX"
++MINICONDA_DIR="${MINICONDA_PREFIX:-$PWD/miniconda3}"
++GLS_ENV_DIR="${GLS_ENV_PREFIX:-$PWD/env_gls}"
++if [ ! -x "$MINICONDA_DIR/bin/conda" ]; then
++    curl -fL --connect-timeout 30 --retry 2 -o Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
++    bash Miniconda3.sh -b -p "$MINICONDA_DIR"
+ fi
+-"$PREFIX/bin/conda" create -y -p "$PWD/env_lagrange" --override-channels -c conda-forge \
++"$MINICONDA_DIR/bin/conda" create -y -p "$GLS_ENV_DIR" --override-channels -c conda-forge \
+     python=3.12 fenics-dolfinx=0.11.0 "petsc=*=real*" io4dolfinx=1.4.0 adios2=2.12.1 \
+     mpi4py numpy scipy h5py matplotlib meshio=5.3.5
+-"$PREFIX/bin/conda" run -p "$PWD/env_lagrange" --no-capture-output bash run_lagrange.sh
++"$MINICONDA_DIR/bin/conda" run -p "$GLS_ENV_DIR" --no-capture-output python -c 'import dolfinx; print("DOLFINx", dolfinx.__version__)'
++"$MINICONDA_DIR/bin/conda" run -p "$GLS_ENV_DIR" --no-capture-output bash run_gls.sh
+--- a/README_HO_PDF.md
++++ b/README_HO_PDF.md
+@@ -0,0 +1,64 @@
++# HO PDF 对照修改版
++
++本目录是针对 HO_GLS_stabilization_rewritten(1).pdf 的修改版本。
++原 README_GLS.md、reference_output、versions*.txt、environment-linux-64-explicit.txt
++是上传包的历史说明/数据，不能作为本次运行结果。以本文件及本次 results/ 为准。
++
++## 与上传包各方法的关系
++
++- plain P1：位移单场、体积罚能；不是 PDF 方法。
++- Lagrange：P2/P1 位移-压力，支持纯乘子和增强拉格朗日；不是 PDF 方法。
++- GLS：P1/P1 速度-压力，PSPG + LSIC；是本次修改基础。
++- none_p1p1 / none：同一 GLS 驱动中的 P1/P1 / P2/P1 无稳定化对照。
++
++## 实际修改
++
++1. 新增 material_ho_pdf.HolzapfelOgdenPDF；只由 GLS 驱动使用。
++   被动能量只将 I1 等容化，I4f/I4s/I8fs 由原始 C 计算。
++   W4 使用平滑正部 xi=(x+sqrt(x*x+1e-12))/2，其中 x=I4-1。
++   W1 比 PDF 多减去一个常数，对应力及刚度没有影响。
++2. mu_eff = a exp(b(I1bar-3)) + 2 af xi_f exp(bf xi_f^2)
++   + 2 as xi_s exp(bs xi_s^2)。可选额外 2 afs sqrt(I8^2+eps) exp(bfs I8^2)。
++   该可选开关只影响稳定尺度；被动能量始终保留 fs 耦合。
++3. omega=ct*rho/dt+cs*mu_eff*dt/h^2；tau_m=Ctau/omega；tau_c=Cc*h^2*omega。
++   默认 ct=1.5, cs=3, Ctau=0.03, Cc=0.1。
++   PSPG 使用 tau_m，加入压力方程；LSIC 使用 tau_c，加入速度方程。
++   完整残量自动求导包含 mu_eff 的变形依赖，未冻结系数。
++4. 保留原始速度约束 Rp=cofac(F):grad(v)，不引入 p/kappa 或增强体积项。
++   PDF 的 J-1+p/kappa 是可选模型举例，不是对旧速度约束的明确替换指令。
++   当前 tau_c 的量纲为 Pa*s，配合速率残差；若换成无量纲的 J-1+p/kappa，
++   必须重新明确压力方程及 LSIC 的时间尺度，不能只替换 Rp。
++5. 原有主动应力、黏性、边界载荷、材料数值、BE 起步和 BDF2 历史更新保留。
++   PDF 未定义主动应力新公式；主动应力内部原有等容化不变量仍保留。
++6. 每步输出当前 mu_eff_Pa、tau_m、tau_c，先评估再移动 BDF2 历史。
++   verify_gls_results.py 独立重建 F/J、时间递推、动能及新稳定系数。
++
++## Miniconda 安装和运行（Linux x86_64）
++
++使用项目原来指定的 DOLFINx 0.11.0 / Python 3.12。
++官方 conda 安装说明：https://fenicsproject.org/download/
++
++```bash
++# 安装 Miniconda、创建 dolfinx 环境并运行 3 步
++SIMPLE_3D0D_STEPS=3 SIMPLE_3D0D_OUTPUT_DIR=out_pdf_smoke bash install_miniconda.sh
++./miniconda3/bin/conda run -p ./env_gls python verify_gls_results.py out_pdf_smoke
++
++# 完整 200 步，dt=0.005 s，总时长 1 s
++SIMPLE_3D0D_OUTPUT_DIR=out_pdf_cycle ./miniconda3/bin/conda run -p ./env_gls --no-capture-output bash run_gls.sh
++./miniconda3/bin/conda run -p ./env_gls python verify_gls_results.py out_pdf_cycle
++
++# 可选：把 fs 耦合加入稳定尺度
++LV_GLS_INCLUDE_FS=1 SIMPLE_3D0D_STEPS=3 SIMPLE_3D0D_OUTPUT_DIR=out_pdf_fs ./miniconda3/bin/conda run -p ./env_gls --no-capture-output bash run_gls.sh
++```
++
++可通过 MINICONDA_PREFIX、GLS_ENV_PREFIX 指定安装脚本的路径。
++稳定参数：LV_GLS_CT、LV_GLS_CS、LV_GLS_CTAU、LV_GLS_CC、LV_GLS_INCLUDE_FS。
++旧 LV_GLS_C1/C2/MU_REF 已拒绝使用，避免误以为旧参数仍生效。
++所有输出目录必须是新目录；不要覆盖已经保存的 VTU。
++
++## 解释范围
++
++单份 PDF 无法证明其相对更早 PDF 的编辑历史；上述为 PDF 与上传代码的差别。
++默认选用 PDF 允许的不计 fs 刚度形式。速率不可压缩允许离散体积漂移，
++SNES 收敛不等于逐点 J=1。P1 单元强残差未加跨单元应力跳跃项。
++验证一次周期不能代替网格/时间步收敛性和材料/实验验证。

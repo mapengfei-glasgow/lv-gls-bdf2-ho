@@ -1,0 +1,21 @@
+{
+  "description": "Same P1/P1 space, BE/BDF2, LV loads and dt; only GLS inclusion differs. Short diagnostic, not stability proof.",
+  "time_s": 0.015,
+  "gls": {
+    "p_min_Pa": -97.47402736602156,
+    "p_max_Pa": 93.06355922358449,
+    "J_minus_1_RMS": 0.001007231343984913,
+    "galerkin_p_norm": 3.300601721284856e-07,
+    "pspg_norm": 3.3006017207518674e-07,
+    "total_residual_norm": 1.773714240810827e-11
+  },
+  "none_p1p1": {
+    "p_min_Pa": -616.7704425540068,
+    "p_max_Pa": 662.0107274516936,
+    "J_minus_1_RMS": 0.0010906667231996797,
+    "galerkin_p_norm": 3.3359516352629174e-16,
+    "pspg_norm": 1.6465265959559284e-06,
+    "total_residual_norm": 5.2965560198530477e-11
+  },
+  "note": "PSPG norm in none_p1p1 is a candidate diagnostic only; that term is not added to the unstabilized equation."
+}

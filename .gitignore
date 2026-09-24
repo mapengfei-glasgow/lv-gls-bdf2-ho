@@ -1,0 +1,18 @@
+# macOS / Python
+.DS_Store
+__pycache__/
+*.pyc
+# archives, local conda installs
+*.zip
+miniconda3/
+env_gls/
+Miniconda3.sh
+# heavy VTK frames (keep json/csv/png/logs)
+*.vtu
+*.pvtu
+*.pvd
+*.bp/
+# new run outputs
+runs/**/vtk/
+out_*/
+output/

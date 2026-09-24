@@ -1,0 +1,21 @@
+{
+  "frames": 200,
+  "end_time_s": 1.0,
+  "all_steps_converged": true,
+  "max_newton_iterations": 3,
+  "J_min": 0.22767550741792555,
+  "J_max": 2.3533123596099115,
+  "maximum_J_RMS": 0.2000915005739553,
+  "final_J_mean": 1.0002066309901156,
+  "max_J_mean_drift": 0.0018348836907953192,
+  "minimum_V_mL": 160.83272464342068,
+  "maximum_V_mL": 347.48697915063093,
+  "final_V_mL": 333.28431327920356,
+  "minimum_pressure_Pa": -6576.336594726351,
+  "maximum_pressure_Pa": 21912.97534970763,
+  "max_displacement_m": 0.034117525419731065,
+  "max_total_algebraic_residual": 2.3887426023407203e-10,
+  "max_kinematic_recurrence_error_m": 2.710505431213761e-17,
+  "max_independent_J_error": 9.769962616701378e-15,
+  "max_independent_kinetic_energy_error_J": 3.729655473350135e-17
+}

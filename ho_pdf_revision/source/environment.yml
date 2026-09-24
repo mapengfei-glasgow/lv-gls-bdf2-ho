@@ -1,0 +1,16 @@
+name: lv0d3d
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - fenics-dolfinx=0.11.0
+  - io4dolfinx=1.4.0
+  - adios2=2.12.1
+  - mpi4py
+  - numpy
+  - scipy
+  - h5py
+  - matplotlib
+  - pip
+  - pip:
+      - meshio==5.3.5

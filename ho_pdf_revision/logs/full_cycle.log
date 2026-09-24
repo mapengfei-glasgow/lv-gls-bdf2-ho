@@ -1,0 +1,929 @@
+hwloc/linux: failed to find sysfs cpu topology directory, aborting linux discovery.
+hwloc/linux: failed to find sysfs cpu topology directory, aborting linux discovery.
+[1789950111.569743] [localhost:17   :0]       tcp_iface.c:984  UCX  ERROR scandir(/sys/class/net) failed: No such file or directory
+[Mesh] 972 cells, 324 nodes | x∈[-0.0959,0.0265] y∈[-0.0350,0.0350] z∈[-0.0350,0.0350]
+GLS configuration: {"mode": "gls", "velocity_degree": 1, "pressure_degree": 1, "time_scheme": "bdf2", "c_t": 1.5, "c_s": 3.0, "C_tau": 0.03, "C_c": 0.1, "include_fs_stiffness": false, "mu_eff_definition": "PDF HO deformation-dependent scalar scale (not full tangent tensor)", "h_min_m": 0.01020591925736772, "h_max_m": 0.04315667101606657, "pressure_constraint": "cofac(F):grad(v)", "augmentation_Pa": 0.0, "material_invariants": "I1 is isochoric; I4f/I4s/I8fs use raw C", "positive_part_epsilon": 1e-12, "formulation": "PDF separate PSPG/LSIC scales with retained rate constraint", "OSS": false, "dt_s": 0.005, "requested_steps": 200, "material_parameters": {"a": 224.487, "b": 1.6215, "a_f": 2426.7, "b_f": 1.8268, "a_s": 556.238, "b_s": 0.7746, "a_fs": 390.51599999999996, "b_fs": 1.695, "kappa": 1000000.0, "eta": 100.0, "k": 100.0}, "rho_kg_m3": 1000.0, "long_axis": "x", "base_center_m": [0.025360294117647057, 2.42861286636753e-17, 1.1449174941446927e-16], "base_constraint": "original axial/tangential penalty; radial free", "mesh_scale": 0.01, "status": "running", "completed_steps": 0}
+  0 SNES Function norm 3.761077580781e-02
+  1 SNES Function norm 1.458508873284e-03
+  2 SNES Function norm 1.808443678700e-08
+  3 SNES Function norm 9.093919761645e-16
+Step 0: iterations=3, reason=2
+[GLS] t=0.0050 V=160.8349 J=[0.99948,1.00053] J_RMS=0.00020187 |Gp|=1.45e-07 |Spspg|=1.45e-07
+  0 SNES Function norm 4.270036480704e-02
+  1 SNES Function norm 2.488263908173e-05
+  2 SNES Function norm 7.376012092408e-12
+Step 1: iterations=2, reason=2
+  0 SNES Function norm 4.271956831133e-02
+  1 SNES Function norm 2.455741508081e-05
+  2 SNES Function norm 7.373502792700e-12
+Step 2: iterations=2, reason=2
+  0 SNES Function norm 4.113992797892e-02
+  1 SNES Function norm 2.174979934435e-05
+  2 SNES Function norm 6.399205331855e-12
+Step 3: iterations=2, reason=2
+  0 SNES Function norm 3.943822594151e-02
+  1 SNES Function norm 1.953226332649e-05
+  2 SNES Function norm 5.584528925827e-12
+Step 4: iterations=2, reason=2
+  0 SNES Function norm 3.797887653316e-02
+  1 SNES Function norm 1.811833175340e-05
+  2 SNES Function norm 5.033084854616e-12
+Step 5: iterations=2, reason=2
+  0 SNES Function norm 3.673775500246e-02
+  1 SNES Function norm 1.687768252862e-05
+  2 SNES Function norm 4.552966012657e-12
+Step 6: iterations=2, reason=2
+  0 SNES Function norm 3.565257038576e-02
+  1 SNES Function norm 1.540035131364e-05
+  2 SNES Function norm 4.031351012335e-12
+Step 7: iterations=2, reason=2
+  0 SNES Function norm 3.469293043426e-02
+  1 SNES Function norm 1.366031863223e-05
+  2 SNES Function norm 3.508048943102e-12
+Step 8: iterations=2, reason=2
+  0 SNES Function norm 3.384788784232e-02
+  1 SNES Function norm 1.183389005989e-05
+  2 SNES Function norm 3.041332713309e-12
+Step 9: iterations=2, reason=2
+  0 SNES Function norm 3.310676196524e-02
+  1 SNES Function norm 1.011505029924e-05
+  2 SNES Function norm 2.642887840508e-12
+Step 10: iterations=2, reason=2
+[GLS] t=0.0550 V=163.0213 J=[0.96746,1.03131] J_RMS=0.011818 |Gp|=1.26e-06 |Spspg|=1.26e-06
+  0 SNES Function norm 3.245080991264e-02
+  1 SNES Function norm 8.624352156906e-06
+  2 SNES Function norm 2.297438006401e-12
+Step 11: iterations=2, reason=2
+  0 SNES Function norm 3.185403373817e-02
+  1 SNES Function norm 7.399489981218e-06
+  2 SNES Function norm 1.990959813110e-12
+Step 12: iterations=2, reason=2
+  0 SNES Function norm 3.128729036542e-02
+  1 SNES Function norm 6.427425803013e-06
+  2 SNES Function norm 1.717447567699e-12
+Step 13: iterations=2, reason=2
+  0 SNES Function norm 3.072211574877e-02
+  1 SNES Function norm 5.685257529888e-06
+  2 SNES Function norm 1.477538757437e-12
+Step 14: iterations=2, reason=2
+  0 SNES Function norm 3.013356602720e-02
+  1 SNES Function norm 5.349005090146e-06
+  2 SNES Function norm 1.536259707905e-12
+Step 15: iterations=2, reason=2
+  0 SNES Function norm 2.950276624274e-02
+  1 SNES Function norm 4.891696122266e-06
+  2 SNES Function norm 1.185428321540e-12
+Step 16: iterations=2, reason=2
+  0 SNES Function norm 2.881891620002e-02
+  1 SNES Function norm 4.874162891519e-06
+  2 SNES Function norm 1.277588096020e-12
+Step 17: iterations=2, reason=2
+  0 SNES Function norm 2.808086697763e-02
+  1 SNES Function norm 5.113550129846e-06
+  2 SNES Function norm 1.668357548532e-12
+Step 18: iterations=2, reason=2
+  0 SNES Function norm 2.730287703143e-02
+  1 SNES Function norm 5.591678341635e-06
+  2 SNES Function norm 2.408009786164e-12
+Step 19: iterations=2, reason=2
+  0 SNES Function norm 2.651720455687e-02
+  1 SNES Function norm 6.295499181399e-06
+  2 SNES Function norm 3.534133890558e-12
+Step 20: iterations=2, reason=2
+[GLS] t=0.1050 V=174.8930 J=[0.86844,1.09701] J_RMS=0.036004 |Gp|=1.74e-06 |Spspg|=1.74e-06
+  0 SNES Function norm 2.577914214000e-02
+  1 SNES Function norm 7.230298705773e-06
+  2 SNES Function norm 5.115161584600e-12
+Step 21: iterations=2, reason=2
+  0 SNES Function norm 2.517037101679e-02
+  1 SNES Function norm 8.411328318708e-06
+  2 SNES Function norm 7.247337305811e-12
+Step 22: iterations=2, reason=2
+  0 SNES Function norm 2.479744775732e-02
+  1 SNES Function norm 9.840853352704e-06
+  2 SNES Function norm 1.002251472984e-11
+Step 23: iterations=2, reason=2
+  0 SNES Function norm 2.478052492244e-02
+  1 SNES Function norm 1.148456477104e-05
+  2 SNES Function norm 1.348399066213e-11
+Step 24: iterations=2, reason=2
+  0 SNES Function norm 2.522902785766e-02
+  1 SNES Function norm 1.325905770766e-05
+  2 SNES Function norm 1.757609717268e-11
+Step 25: iterations=2, reason=2
+  0 SNES Function norm 2.620839982758e-02
+  1 SNES Function norm 1.503619168478e-05
+  2 SNES Function norm 2.208935490221e-11
+Step 26: iterations=2, reason=2
+  0 SNES Function norm 2.771158430659e-02
+  1 SNES Function norm 1.666475372244e-05
+  2 SNES Function norm 2.659534599571e-11
+Step 27: iterations=2, reason=2
+  0 SNES Function norm 2.964965485081e-02
+  1 SNES Function norm 1.800421274256e-05
+  2 SNES Function norm 3.039811222505e-11
+Step 28: iterations=2, reason=2
+  0 SNES Function norm 3.186448227305e-02
+  1 SNES Function norm 1.895798822259e-05
+  2 SNES Function norm 3.260586447923e-11
+Step 29: iterations=2, reason=2
+  0 SNES Function norm 3.415509523835e-02
+  1 SNES Function norm 1.949266372259e-05
+  2 SNES Function norm 3.244216040437e-11
+Step 30: iterations=2, reason=2
+[GLS] t=0.1550 V=211.0456 J=[0.72000,1.17513] J_RMS=0.065829 |Gp|=1.85e-06 |Spspg|=1.85e-06
+  0 SNES Function norm 3.630917619401e-02
+  1 SNES Function norm 1.962355742943e-05
+  2 SNES Function norm 2.969517729287e-11
+Step 31: iterations=2, reason=2
+  0 SNES Function norm 3.813453227338e-02
+  1 SNES Function norm 1.942690722145e-05
+  2 SNES Function norm 2.562636032151e-11
+Step 32: iterations=2, reason=2
+  0 SNES Function norm 3.948909244442e-02
+  1 SNES Function norm 1.900537588758e-05
+  2 SNES Function norm 2.268188401643e-11
+Step 33: iterations=2, reason=2
+  0 SNES Function norm 4.030594418495e-02
+  1 SNES Function norm 1.849091276907e-05
+  2 SNES Function norm 2.232095483808e-11
+Step 34: iterations=2, reason=2
+  0 SNES Function norm 4.060647149424e-02
+  1 SNES Function norm 1.801769951214e-05
+  2 SNES Function norm 2.302316340723e-11
+Step 35: iterations=2, reason=2
+  0 SNES Function norm 4.049513722379e-02
+  1 SNES Function norm 1.770562261828e-05
+  2 SNES Function norm 2.285304495209e-11
+Step 36: iterations=2, reason=2
+  0 SNES Function norm 4.013397394100e-02
+  1 SNES Function norm 1.778220829041e-05
+  2 SNES Function norm 2.133851885665e-11
+Step 37: iterations=2, reason=2
+  0 SNES Function norm 3.969436052603e-02
+  1 SNES Function norm 1.885751707865e-05
+  2 SNES Function norm 1.938613322897e-11
+Step 38: iterations=2, reason=2
+  0 SNES Function norm 3.931278438373e-02
+  1 SNES Function norm 2.179886781396e-05
+  2 SNES Function norm 2.203545298356e-11
+Step 39: iterations=2, reason=2
+  0 SNES Function norm 9.028835417524e-02
+  1 SNES Function norm 1.051672015426e-04
+  2 SNES Function norm 3.762246853286e-10
+  3 SNES Function norm 1.024291171885e-14
+Step 40: iterations=3, reason=2
+[GLS] t=0.2050 V=279.0519 J=[0.67612,1.24220] J_RMS=0.089062 |Gp|=1.97e-06 |Spspg|=1.97e-06
+  0 SNES Function norm 9.222869174782e-02
+  1 SNES Function norm 1.160009326589e-04
+  2 SNES Function norm 3.837908910371e-10
+  3 SNES Function norm 1.012535583137e-14
+Step 41: iterations=3, reason=2
+  0 SNES Function norm 8.206152755640e-02
+  1 SNES Function norm 1.046627941517e-04
+  2 SNES Function norm 4.980373812226e-10
+  3 SNES Function norm 1.110031586863e-14
+Step 42: iterations=3, reason=2
+  0 SNES Function norm 7.251653514569e-02
+  1 SNES Function norm 1.047649114740e-04
+  2 SNES Function norm 7.407930710852e-10
+  3 SNES Function norm 9.519963192231e-15
+Step 43: iterations=3, reason=2
+  0 SNES Function norm 6.620484022419e-02
+  1 SNES Function norm 1.067406902163e-04
+  2 SNES Function norm 8.915173410584e-10
+  3 SNES Function norm 1.041160403584e-14
+Step 44: iterations=3, reason=2
+  0 SNES Function norm 6.185432250069e-02
+  1 SNES Function norm 1.025980782632e-04
+  2 SNES Function norm 8.669034962818e-10
+  3 SNES Function norm 1.079112069136e-14
+Step 45: iterations=3, reason=2
+  0 SNES Function norm 5.797307214957e-02
+  1 SNES Function norm 9.077811462302e-05
+  2 SNES Function norm 6.916476967232e-10
+  3 SNES Function norm 1.121106778438e-14
+Step 46: iterations=3, reason=2
+  0 SNES Function norm 5.375871019461e-02
+  1 SNES Function norm 7.317899187416e-05
+  2 SNES Function norm 4.530297717785e-10
+  3 SNES Function norm 1.060336677211e-14
+Step 47: iterations=3, reason=2
+  0 SNES Function norm 4.907000940308e-02
+  1 SNES Function norm 5.327002547919e-05
+  2 SNES Function norm 2.397092548421e-10
+  3 SNES Function norm 1.141852062539e-14
+Step 48: iterations=3, reason=2
+  0 SNES Function norm 4.417923386406e-02
+  1 SNES Function norm 3.466893993728e-05
+  2 SNES Function norm 9.873329806107e-11
+Step 49: iterations=2, reason=2
+  0 SNES Function norm 3.952310444590e-02
+  1 SNES Function norm 2.008372761203e-05
+  2 SNES Function norm 2.936362992684e-11
+Step 50: iterations=2, reason=2
+[GLS] t=0.2550 V=322.3908 J=[0.72968,1.25491] J_RMS=0.097531 |Gp|=1.18e-06 |Spspg|=1.18e-06
+  0 SNES Function norm 3.550441949201e-02
+  1 SNES Function norm 1.074126023686e-05
+  2 SNES Function norm 5.339052937914e-12
+Step 51: iterations=2, reason=2
+  0 SNES Function norm 3.236333515718e-02
+  1 SNES Function norm 6.346901394783e-06
+  2 SNES Function norm 8.462201748237e-13
+Step 52: iterations=2, reason=2
+  0 SNES Function norm 3.010357919980e-02
+  1 SNES Function norm 5.855128098909e-06
+  2 SNES Function norm 1.654318558111e-12
+Step 53: iterations=2, reason=2
+  0 SNES Function norm 2.852188693573e-02
+  1 SNES Function norm 7.998421863410e-06
+  2 SNES Function norm 6.071743111672e-12
+Step 54: iterations=2, reason=2
+  0 SNES Function norm 2.731908834372e-02
+  1 SNES Function norm 1.100299493518e-05
+  2 SNES Function norm 1.272870243728e-11
+Step 55: iterations=2, reason=2
+  0 SNES Function norm 2.621539574005e-02
+  1 SNES Function norm 1.347353640538e-05
+  2 SNES Function norm 1.897223599338e-11
+Step 56: iterations=2, reason=2
+  0 SNES Function norm 2.501709440736e-02
+  1 SNES Function norm 1.465355374659e-05
+  2 SNES Function norm 2.205471371316e-11
+Step 57: iterations=2, reason=2
+  0 SNES Function norm 2.362982597359e-02
+  1 SNES Function norm 1.434218312150e-05
+  2 SNES Function norm 2.095007527076e-11
+Step 58: iterations=2, reason=2
+  0 SNES Function norm 2.204378458285e-02
+  1 SNES Function norm 1.275333045032e-05
+  2 SNES Function norm 1.667210938125e-11
+Step 59: iterations=2, reason=2
+  0 SNES Function norm 2.030166846828e-02
+  1 SNES Function norm 1.034586765168e-05
+  2 SNES Function norm 1.125002354786e-11
+Step 60: iterations=2, reason=2
+[GLS] t=0.3050 V=333.9969 J=[0.74431,1.24795] J_RMS=0.1011 |Gp|=6.01e-07 |Spspg|=6.01e-07
+  0 SNES Function norm 1.851552515531e-02
+  1 SNES Function norm 7.641639973239e-06
+  2 SNES Function norm 6.437666414904e-12
+Step 61: iterations=2, reason=2
+  0 SNES Function norm 1.679881098380e-02
+  1 SNES Function norm 5.113654548370e-06
+  2 SNES Function norm 3.097045233062e-12
+Step 62: iterations=2, reason=2
+  0 SNES Function norm 1.526750717915e-02
+  1 SNES Function norm 3.098344225826e-06
+  2 SNES Function norm 1.227126153012e-12
+Step 63: iterations=2, reason=2
+  0 SNES Function norm 1.401565338925e-02
+  1 SNES Function norm 1.767265844217e-06
+  2 SNES Function norm 3.875242185912e-13
+Step 64: iterations=2, reason=2
+  0 SNES Function norm 1.308565198042e-02
+  1 SNES Function norm 1.122952610746e-06
+  2 SNES Function norm 9.544034774260e-14
+Step 65: iterations=2, reason=2
+  0 SNES Function norm 1.245289733257e-02
+  1 SNES Function norm 9.725903879529e-07
+  2 SNES Function norm 3.173666685176e-14
+Step 66: iterations=2, reason=2
+  0 SNES Function norm 1.203269979092e-02
+  1 SNES Function norm 1.077959864501e-06
+  2 SNES Function norm 3.280920240843e-14
+Step 67: iterations=2, reason=2
+  0 SNES Function norm 1.172303835767e-02
+  1 SNES Function norm 1.290720404382e-06
+  2 SNES Function norm 5.872208428330e-14
+Step 68: iterations=2, reason=2
+  0 SNES Function norm 1.142483944925e-02
+  1 SNES Function norm 1.491992470557e-06
+  2 SNES Function norm 8.859672313432e-14
+Step 69: iterations=2, reason=2
+  0 SNES Function norm 1.107212386041e-02
+  1 SNES Function norm 1.589632528378e-06
+  2 SNES Function norm 1.083904541780e-13
+Step 70: iterations=2, reason=2
+[GLS] t=0.3550 V=345.8383 J=[0.73835,1.24539] J_RMS=0.10358 |Gp|=4.45e-07 |Spspg|=4.45e-07
+  0 SNES Function norm 1.063153595326e-02
+  1 SNES Function norm 1.551810541935e-06
+  2 SNES Function norm 1.082139166930e-13
+Step 71: iterations=2, reason=2
+  0 SNES Function norm 1.010789805175e-02
+  1 SNES Function norm 1.390208477965e-06
+  2 SNES Function norm 9.020397983228e-14
+Step 72: iterations=2, reason=2
+  0 SNES Function norm 9.519260792898e-03
+  1 SNES Function norm 1.143949955297e-06
+  2 SNES Function norm 6.169093414525e-14
+Step 73: iterations=2, reason=2
+  0 SNES Function norm 8.900837105031e-03
+  1 SNES Function norm 8.781680877210e-07
+  2 SNES Function norm 3.777824092552e-14
+Step 74: iterations=2, reason=2
+  0 SNES Function norm 8.288750976256e-03
+  1 SNES Function norm 6.400386851120e-07
+  2 SNES Function norm 2.194301359444e-14
+Step 75: iterations=2, reason=2
+  0 SNES Function norm 7.715955650889e-03
+  1 SNES Function norm 4.550706259623e-07
+  2 SNES Function norm 1.462844672889e-14
+Step 76: iterations=2, reason=2
+  0 SNES Function norm 7.202122939163e-03
+  1 SNES Function norm 3.369161692158e-07
+  2 SNES Function norm 1.239142191049e-14
+Step 77: iterations=2, reason=2
+  0 SNES Function norm 6.751250845356e-03
+  1 SNES Function norm 2.913072524653e-07
+  2 SNES Function norm 1.322400993157e-14
+Step 78: iterations=2, reason=2
+  0 SNES Function norm 6.355534857675e-03
+  1 SNES Function norm 3.026526305664e-07
+  2 SNES Function norm 1.517916245299e-14
+Step 79: iterations=2, reason=2
+  0 SNES Function norm 5.999133807452e-03
+  1 SNES Function norm 3.359313752655e-07
+  2 SNES Function norm 1.751436377866e-14
+Step 80: iterations=2, reason=2
+[GLS] t=0.4050 V=350.7176 J=[0.73561,1.24598] J_RMS=0.1049 |Gp|=3.2e-07 |Spspg|=3.2e-07
+  0 SNES Function norm 5.664530821855e-03
+  1 SNES Function norm 3.619539241402e-07
+  2 SNES Function norm 1.953387212913e-14
+Step 81: iterations=2, reason=2
+  0 SNES Function norm 5.337782386414e-03
+  1 SNES Function norm 3.661102434216e-07
+  2 SNES Function norm 1.913656641499e-14
+Step 82: iterations=2, reason=2
+  0 SNES Function norm 5.011469119441e-03
+  1 SNES Function norm 3.452912558379e-07
+  2 SNES Function norm 1.831466828858e-14
+Step 83: iterations=2, reason=2
+  0 SNES Function norm 4.685254823291e-03
+  1 SNES Function norm 3.041045263672e-07
+  2 SNES Function norm 1.612029033964e-14
+Step 84: iterations=2, reason=2
+  0 SNES Function norm 4.364628527405e-03
+  1 SNES Function norm 2.513247930378e-07
+  2 SNES Function norm 1.416715202607e-14
+Step 85: iterations=2, reason=2
+  0 SNES Function norm 4.058549332061e-03
+  1 SNES Function norm 1.966569545392e-07
+  2 SNES Function norm 1.361317956359e-14
+Step 86: iterations=2, reason=2
+  0 SNES Function norm 3.776622302795e-03
+  1 SNES Function norm 1.482522488677e-07
+  2 SNES Function norm 1.183893399064e-14
+Step 87: iterations=2, reason=2
+  0 SNES Function norm 3.526369731217e-03
+  1 SNES Function norm 1.112550515813e-07
+  2 SNES Function norm 1.292568854908e-14
+Step 88: iterations=2, reason=2
+  0 SNES Function norm 3.311187855619e-03
+  1 SNES Function norm 8.727284407268e-08
+  2 SNES Function norm 1.229419861810e-14
+Step 89: iterations=2, reason=2
+  0 SNES Function norm 3.129544186568e-03
+  1 SNES Function norm 7.458545136819e-08
+  2 SNES Function norm 1.290998991502e-14
+Step 90: iterations=2, reason=2
+[GLS] t=0.4550 V=353.3454 J=[0.73397,1.25050] J_RMS=0.10571 |Gp|=2.54e-07 |Spspg|=2.54e-07
+  0 SNES Function norm 2.972869354758e-03
+  1 SNES Function norm 6.964220662068e-08
+  2 SNES Function norm 1.245155860524e-14
+Step 91: iterations=2, reason=2
+  0 SNES Function norm 2.837979146374e-03
+  1 SNES Function norm 6.819123002151e-08
+  2 SNES Function norm 1.283377185980e-14
+Step 92: iterations=2, reason=2
+  0 SNES Function norm 2.715086115991e-03
+  1 SNES Function norm 6.680845892345e-08
+  2 SNES Function norm 1.232722959275e-14
+Step 93: iterations=2, reason=2
+  0 SNES Function norm 2.596638425936e-03
+  1 SNES Function norm 6.413460126627e-08
+  2 SNES Function norm 1.335760165608e-14
+Step 94: iterations=2, reason=2
+  0 SNES Function norm 2.478452946217e-03
+  1 SNES Function norm 5.950484873441e-08
+  2 SNES Function norm 1.230293260805e-14
+Step 95: iterations=2, reason=2
+  0 SNES Function norm 2.359029628621e-03
+  1 SNES Function norm 5.308102439642e-08
+  2 SNES Function norm 1.252822064298e-14
+Step 96: iterations=2, reason=2
+  0 SNES Function norm 2.239044406917e-03
+  1 SNES Function norm 4.559031526314e-08
+  2 SNES Function norm 1.226437708611e-14
+Step 97: iterations=2, reason=2
+  0 SNES Function norm 2.120524189910e-03
+  1 SNES Function norm 3.797217450223e-08
+  2 SNES Function norm 1.184246676159e-14
+Step 98: iterations=2, reason=2
+  0 SNES Function norm 2.005963399578e-03
+  1 SNES Function norm 3.108303822972e-08
+  2 SNES Function norm 1.137308485393e-14
+Step 99: iterations=2, reason=2
+  0 SNES Function norm 2.790883777867e-01
+  1 SNES Function norm 1.397076943986e-03
+  2 SNES Function norm 1.174938922071e-07
+  3 SNES Function norm 1.251971083368e-14
+Step 100: iterations=3, reason=2
+[GLS] t=0.5050 V=353.5834 J=[0.73337,1.25187] J_RMS=0.10585 |Gp|=1.17e-06 |Spspg|=1.17e-06
+  0 SNES Function norm 8.105029148284e-01
+  1 SNES Function norm 1.083552115663e-02
+  2 SNES Function norm 8.857122178922e-06
+  3 SNES Function norm 1.282962986245e-11
+Step 101: iterations=3, reason=2
+  0 SNES Function norm 1.193190015236e+00
+  1 SNES Function norm 2.226662238277e-02
+  2 SNES Function norm 4.391769011031e-05
+  3 SNES Function norm 2.631857329565e-10
+Step 102: iterations=3, reason=3
+  0 SNES Function norm 1.322042813912e+00
+  1 SNES Function norm 2.754145075743e-02
+  2 SNES Function norm 5.909625112621e-05
+  3 SNES Function norm 3.169039820861e-10
+Step 103: iterations=3, reason=3
+  0 SNES Function norm 1.251195687271e+00
+  1 SNES Function norm 2.316849620383e-02
+  2 SNES Function norm 5.031392591592e-05
+  3 SNES Function norm 2.138941617346e-10
+Step 104: iterations=3, reason=3
+  0 SNES Function norm 1.185525747335e+00
+  1 SNES Function norm 1.828524719533e-02
+  2 SNES Function norm 2.570965728514e-05
+  3 SNES Function norm 9.168393012587e-11
+Step 105: iterations=3, reason=2
+  0 SNES Function norm 1.278249983491e+00
+  1 SNES Function norm 2.297131304742e-02
+  2 SNES Function norm 4.886674016094e-05
+  3 SNES Function norm 2.889882507615e-10
+Step 106: iterations=3, reason=3
+  0 SNES Function norm 1.412333795857e+00
+  1 SNES Function norm 3.113194471803e-02
+  2 SNES Function norm 6.571653456975e-05
+  3 SNES Function norm 3.119895239359e-10
+Step 107: iterations=3, reason=3
+  0 SNES Function norm 1.453791618116e+00
+  1 SNES Function norm 2.929618345379e-02
+  2 SNES Function norm 5.777276534618e-05
+  3 SNES Function norm 2.045648972813e-10
+Step 108: iterations=3, reason=3
+  0 SNES Function norm 1.371615503589e+00
+  1 SNES Function norm 2.187279762198e-02
+  2 SNES Function norm 4.118730870991e-05
+  3 SNES Function norm 8.016525147991e-11
+Step 109: iterations=3, reason=2
+  0 SNES Function norm 1.212200101268e+00
+  1 SNES Function norm 1.606015776382e-02
+  2 SNES Function norm 1.462228267674e-05
+  3 SNES Function norm 1.339857026709e-11
+Step 110: iterations=3, reason=2
+[GLS] t=0.5550 V=220.4260 J=[0.31302,1.80706] J_RMS=0.13611 |Gp|=1.14e-05 |Spspg|=1.14e-05
+  0 SNES Function norm 1.047312595809e+00
+  1 SNES Function norm 1.224749782828e-02
+  2 SNES Function norm 2.262169571549e-05
+  3 SNES Function norm 9.048612619585e-12
+Step 111: iterations=3, reason=2
+  0 SNES Function norm 9.379654365333e-01
+  1 SNES Function norm 8.709362795894e-03
+  2 SNES Function norm 7.241588578858e-06
+  3 SNES Function norm 1.798799143763e-12
+Step 112: iterations=3, reason=2
+  0 SNES Function norm 9.001144812429e-01
+  1 SNES Function norm 4.755358243396e-03
+  2 SNES Function norm 1.612927189764e-06
+  3 SNES Function norm 1.059761247565e-13
+Step 113: iterations=3, reason=2
+  0 SNES Function norm 9.033581011204e-01
+  1 SNES Function norm 2.205938260846e-03
+  2 SNES Function norm 3.991249352601e-07
+  3 SNES Function norm 3.129078441453e-14
+Step 114: iterations=3, reason=2
+  0 SNES Function norm 8.928948569067e-01
+  1 SNES Function norm 3.952418808606e-03
+  2 SNES Function norm 3.137212570102e-06
+  3 SNES Function norm 1.922935436879e-13
+Step 115: iterations=3, reason=2
+  0 SNES Function norm 8.246475367679e-01
+  1 SNES Function norm 7.992742400321e-03
+  2 SNES Function norm 4.864511260341e-06
+  3 SNES Function norm 8.280547366278e-13
+Step 116: iterations=3, reason=2
+  0 SNES Function norm 6.951960584050e-01
+  1 SNES Function norm 1.179010792139e-02
+  2 SNES Function norm 7.251555999109e-06
+  3 SNES Function norm 1.602985043995e-12
+Step 117: iterations=3, reason=2
+  0 SNES Function norm 5.394154644373e-01
+  1 SNES Function norm 1.147598576771e-02
+  2 SNES Function norm 4.367428049967e-06
+  3 SNES Function norm 5.868850477901e-13
+Step 118: iterations=3, reason=2
+  0 SNES Function norm 3.969913601790e-01
+  1 SNES Function norm 7.119365540008e-03
+  2 SNES Function norm 1.267492306614e-06
+  3 SNES Function norm 5.611668963810e-14
+Step 119: iterations=3, reason=2
+  0 SNES Function norm 2.936796533818e-01
+  1 SNES Function norm 2.443637648060e-03
+  2 SNES Function norm 1.143265460591e-07
+  3 SNES Function norm 3.908237912815e-14
+Step 120: iterations=3, reason=2
+[GLS] t=0.6050 V=179.7901 J=[0.23827,1.90788] J_RMS=0.18169 |Gp|=6.08e-06 |Spspg|=6.08e-06
+  0 SNES Function norm 2.419114934998e-01
+  1 SNES Function norm 7.077769310654e-04
+  2 SNES Function norm 2.015846564711e-08
+  3 SNES Function norm 3.922965792605e-14
+Step 121: iterations=3, reason=2
+  0 SNES Function norm 2.341822827223e-01
+  1 SNES Function norm 2.419328690664e-03
+  2 SNES Function norm 2.579000222284e-07
+  3 SNES Function norm 4.053998497192e-14
+Step 122: iterations=3, reason=2
+  0 SNES Function norm 2.455236282453e-01
+  1 SNES Function norm 5.523117108917e-03
+  2 SNES Function norm 9.090861738048e-07
+  3 SNES Function norm 4.836602692792e-14
+Step 123: iterations=3, reason=2
+  0 SNES Function norm 2.545607051727e-01
+  1 SNES Function norm 7.632838754093e-03
+  2 SNES Function norm 1.492066868874e-06
+  3 SNES Function norm 6.860083573031e-14
+Step 124: iterations=3, reason=2
+  0 SNES Function norm 2.474648265519e-01
+  1 SNES Function norm 7.375732155766e-03
+  2 SNES Function norm 1.314946802416e-06
+  3 SNES Function norm 5.522526009241e-14
+Step 125: iterations=3, reason=2
+  0 SNES Function norm 2.223809445293e-01
+  1 SNES Function norm 5.027624516424e-03
+  2 SNES Function norm 6.066120006107e-07
+  3 SNES Function norm 4.217537949757e-14
+Step 126: iterations=3, reason=2
+  0 SNES Function norm 1.978728761836e-01
+  1 SNES Function norm 2.081255732746e-03
+  2 SNES Function norm 1.119535846138e-07
+  3 SNES Function norm 4.228382321641e-14
+Step 127: iterations=3, reason=2
+  0 SNES Function norm 1.973663408941e-01
+  1 SNES Function norm 3.048575814962e-04
+  2 SNES Function norm 3.270468222929e-09
+  3 SNES Function norm 4.341647817987e-14
+Step 128: iterations=3, reason=2
+  0 SNES Function norm 2.125324355794e-01
+  1 SNES Function norm 6.801578369713e-04
+  2 SNES Function norm 1.741817709015e-08
+  3 SNES Function norm 4.266245489457e-14
+Step 129: iterations=3, reason=2
+  0 SNES Function norm 2.214371063639e-01
+  1 SNES Function norm 2.804001571605e-03
+  2 SNES Function norm 1.687675481088e-07
+  3 SNES Function norm 4.211762247547e-14
+Step 130: iterations=3, reason=2
+[GLS] t=0.6550 V=180.5690 J=[0.19633,2.04213] J_RMS=0.19342 |Gp|=4.09e-06 |Spspg|=4.09e-06
+  0 SNES Function norm 1.937554213290e-01
+  1 SNES Function norm 4.633906883049e-03
+  2 SNES Function norm 4.476622491688e-07
+  3 SNES Function norm 4.292427572321e-14
+Step 131: iterations=3, reason=2
+  0 SNES Function norm 1.757915961901e-01
+  1 SNES Function norm 4.980047000752e-03
+  2 SNES Function norm 1.043436881398e-06
+  3 SNES Function norm 5.763100639364e-14
+Step 132: iterations=3, reason=2
+  0 SNES Function norm 1.647829958288e-01
+  1 SNES Function norm 3.804053511608e-03
+  2 SNES Function norm 3.157281670654e-07
+  3 SNES Function norm 4.151471691039e-14
+Step 133: iterations=3, reason=2
+  0 SNES Function norm 1.600166119135e-01
+  1 SNES Function norm 1.927456842557e-03
+  2 SNES Function norm 9.185990771273e-08
+  3 SNES Function norm 4.096966961296e-14
+Step 134: iterations=3, reason=2
+  0 SNES Function norm 1.686216895296e-01
+  1 SNES Function norm 4.699380858163e-04
+  2 SNES Function norm 6.648647459357e-09
+  3 SNES Function norm 4.069430822802e-14
+Step 135: iterations=3, reason=2
+  0 SNES Function norm 1.928313766662e-01
+  1 SNES Function norm 2.756964833208e-04
+  2 SNES Function norm 3.596935952730e-09
+  3 SNES Function norm 4.076321890564e-14
+Step 136: iterations=3, reason=2
+  0 SNES Function norm 2.253050444742e-01
+  1 SNES Function norm 1.093696933259e-03
+  2 SNES Function norm 4.210645929800e-08
+  3 SNES Function norm 3.899738705203e-14
+Step 137: iterations=3, reason=2
+  0 SNES Function norm 2.569785315965e-01
+  1 SNES Function norm 2.114793428760e-03
+  2 SNES Function norm 1.361211604803e-07
+  3 SNES Function norm 3.998863590444e-14
+Step 138: iterations=3, reason=2
+  0 SNES Function norm 2.819164800105e-01
+  1 SNES Function norm 2.608207721603e-03
+  2 SNES Function norm 2.211178266378e-07
+  3 SNES Function norm 4.030327530088e-14
+Step 139: iterations=3, reason=2
+  0 SNES Function norm 2.985129698095e-01
+  1 SNES Function norm 2.315086073988e-03
+  2 SNES Function norm 2.185063185054e-07
+  3 SNES Function norm 3.976449756331e-14
+Step 140: iterations=3, reason=2
+[GLS] t=0.7050 V=188.2588 J=[0.17390,2.10307] J_RMS=0.19777 |Gp|=3.01e-06 |Spspg|=3.01e-06
+  0 SNES Function norm 3.117591277802e-01
+  1 SNES Function norm 1.509110500424e-03
+  2 SNES Function norm 1.425953609122e-07
+  3 SNES Function norm 3.710580429320e-14
+Step 141: iterations=3, reason=2
+  0 SNES Function norm 3.316026029841e-01
+  1 SNES Function norm 7.044565382561e-04
+  2 SNES Function norm 5.688379132987e-08
+  3 SNES Function norm 3.740074408978e-14
+Step 142: iterations=3, reason=2
+  0 SNES Function norm 3.672375695390e-01
+  1 SNES Function norm 2.404718179007e-04
+  2 SNES Function norm 4.292719128201e-09
+  3 SNES Function norm 3.383682288927e-14
+Step 143: iterations=3, reason=2
+  0 SNES Function norm 4.212971946867e-01
+  1 SNES Function norm 5.468943321226e-04
+  2 SNES Function norm 2.816096630402e-08
+  3 SNES Function norm 3.297911602213e-14
+Step 144: iterations=3, reason=2
+  0 SNES Function norm 4.894239334936e-01
+  1 SNES Function norm 1.291298464427e-03
+  2 SNES Function norm 1.664577009661e-07
+  3 SNES Function norm 3.340113588277e-14
+Step 145: iterations=3, reason=2
+  0 SNES Function norm 5.632891198169e-01
+  1 SNES Function norm 1.964497437007e-03
+  2 SNES Function norm 3.655580950028e-07
+  3 SNES Function norm 3.026377983072e-14
+Step 146: iterations=3, reason=2
+  0 SNES Function norm 6.341972864159e-01
+  1 SNES Function norm 2.271811715917e-03
+  2 SNES Function norm 4.797151219655e-07
+  3 SNES Function norm 3.205319249002e-14
+Step 147: iterations=3, reason=2
+  0 SNES Function norm 6.948300531694e-01
+  1 SNES Function norm 2.119651811670e-03
+  2 SNES Function norm 4.125685603697e-07
+  3 SNES Function norm 3.010276204070e-14
+Step 148: iterations=3, reason=2
+  0 SNES Function norm 7.399684051446e-01
+  1 SNES Function norm 1.698539421414e-03
+  2 SNES Function norm 2.241025323460e-07
+  3 SNES Function norm 2.509693292756e-14
+Step 149: iterations=3, reason=2
+  0 SNES Function norm 7.665884335542e-01
+  1 SNES Function norm 1.267608772485e-03
+  2 SNES Function norm 6.024850579943e-08
+  3 SNES Function norm 2.757247877536e-14
+Step 150: iterations=3, reason=2
+[GLS] t=0.7550 V=193.0124 J=[0.19202,2.01452] J_RMS=0.18609 |Gp|=4.08e-06 |Spspg|=4.08e-06
+  0 SNES Function norm 7.732005148374e-01
+  1 SNES Function norm 1.164275133542e-03
+  2 SNES Function norm 2.230658043715e-08
+  3 SNES Function norm 2.355533691289e-14
+Step 151: iterations=3, reason=2
+  0 SNES Function norm 7.594173430708e-01
+  1 SNES Function norm 1.387099905211e-03
+  2 SNES Function norm 6.940966275835e-08
+  3 SNES Function norm 1.962923722841e-13
+Step 152: iterations=3, reason=2
+  0 SNES Function norm 7.244227340693e-01
+  1 SNES Function norm 1.670206031597e-03
+  2 SNES Function norm 9.388565779957e-08
+  3 SNES Function norm 1.785000465124e-14
+Step 153: iterations=3, reason=2
+  0 SNES Function norm 6.700625505713e-01
+  1 SNES Function norm 1.844927504729e-03
+  2 SNES Function norm 9.074385469134e-08
+  3 SNES Function norm 1.700101052547e-14
+Step 154: iterations=3, reason=2
+  0 SNES Function norm 5.998253161951e-01
+  1 SNES Function norm 1.914308026922e-03
+  2 SNES Function norm 7.553747851717e-08
+  3 SNES Function norm 1.641833662191e-14
+Step 155: iterations=3, reason=2
+  0 SNES Function norm 5.169774626375e-01
+  1 SNES Function norm 1.665671870552e-03
+  2 SNES Function norm 5.430909227421e-08
+  3 SNES Function norm 1.551351092486e-14
+Step 156: iterations=3, reason=2
+  0 SNES Function norm 4.234333486669e-01
+  1 SNES Function norm 1.830119592231e-03
+  2 SNES Function norm 1.245609599512e-07
+  3 SNES Function norm 1.563398443984e-14
+Step 157: iterations=3, reason=2
+  0 SNES Function norm 3.165792119780e-01
+  1 SNES Function norm 1.013514796744e-03
+  2 SNES Function norm 5.230724812273e-08
+  3 SNES Function norm 1.438294386388e-14
+Step 158: iterations=3, reason=2
+  0 SNES Function norm 2.434154516532e-01
+  1 SNES Function norm 5.997715503258e-04
+  2 SNES Function norm 1.511177810407e-08
+  3 SNES Function norm 1.469738878823e-14
+Step 159: iterations=3, reason=2
+  0 SNES Function norm 2.764809497086e-01
+  1 SNES Function norm 1.265769736106e-03
+  2 SNES Function norm 4.585338680445e-08
+  3 SNES Function norm 1.370460755432e-14
+Step 160: iterations=3, reason=2
+[GLS] t=0.8050 V=231.1471 J=[0.24938,1.72950] J_RMS=0.15319 |Gp|=6.53e-06 |Spspg|=6.53e-06
+  0 SNES Function norm 2.804563523647e-01
+  1 SNES Function norm 1.405513500570e-03
+  2 SNES Function norm 5.864798389977e-08
+  3 SNES Function norm 1.327540066064e-14
+Step 161: iterations=3, reason=2
+  0 SNES Function norm 2.773279854415e-01
+  1 SNES Function norm 1.422122193777e-03
+  2 SNES Function norm 6.956139180897e-08
+  3 SNES Function norm 1.387696448954e-14
+Step 162: iterations=3, reason=2
+  0 SNES Function norm 2.651154293257e-01
+  1 SNES Function norm 1.255323343505e-03
+  2 SNES Function norm 5.328628017306e-08
+  3 SNES Function norm 1.455680764266e-14
+Step 163: iterations=3, reason=2
+  0 SNES Function norm 2.460864387551e-01
+  1 SNES Function norm 1.122649702026e-03
+  2 SNES Function norm 4.911667790818e-08
+  3 SNES Function norm 1.425360284712e-14
+Step 164: iterations=3, reason=2
+  0 SNES Function norm 2.235431520633e-01
+  1 SNES Function norm 1.138261082464e-03
+  2 SNES Function norm 5.021632291077e-08
+  3 SNES Function norm 1.333905501122e-14
+Step 165: iterations=3, reason=2
+  0 SNES Function norm 1.971094881819e-01
+  1 SNES Function norm 1.154022823720e-03
+  2 SNES Function norm 5.131334016441e-08
+  3 SNES Function norm 1.462481531488e-14
+Step 166: iterations=3, reason=2
+  0 SNES Function norm 1.680591795138e-01
+  1 SNES Function norm 1.104731715529e-03
+  2 SNES Function norm 5.145468643670e-08
+  3 SNES Function norm 1.560299584919e-14
+Step 167: iterations=3, reason=2
+  0 SNES Function norm 1.404365398068e-01
+  1 SNES Function norm 9.887315786366e-04
+  2 SNES Function norm 4.636641941120e-08
+  3 SNES Function norm 1.430127009659e-14
+Step 168: iterations=3, reason=2
+  0 SNES Function norm 1.178897238286e-01
+  1 SNES Function norm 8.130674575311e-04
+  2 SNES Function norm 3.534172662585e-08
+  3 SNES Function norm 1.387349322769e-14
+Step 169: iterations=3, reason=2
+  0 SNES Function norm 1.012716822767e-01
+  1 SNES Function norm 6.154858155595e-04
+  2 SNES Function norm 2.239900743406e-08
+  3 SNES Function norm 1.479746837016e-14
+Step 170: iterations=3, reason=2
+[GLS] t=0.8550 V=264.3707 J=[0.26592,1.58989] J_RMS=0.14378 |Gp|=2.81e-06 |Spspg|=2.81e-06
+  0 SNES Function norm 9.046773855383e-02
+  1 SNES Function norm 4.298197041290e-04
+  2 SNES Function norm 1.166334598607e-08
+  3 SNES Function norm 1.688104141945e-14
+Step 171: iterations=3, reason=2
+  0 SNES Function norm 8.532880828342e-02
+  1 SNES Function norm 2.875839824251e-04
+  2 SNES Function norm 5.308289936795e-09
+  3 SNES Function norm 1.426631336362e-14
+Step 172: iterations=3, reason=2
+  0 SNES Function norm 8.601315309467e-02
+  1 SNES Function norm 2.079992434119e-04
+  2 SNES Function norm 2.761337786197e-09
+  3 SNES Function norm 1.390939312595e-14
+Step 173: iterations=3, reason=2
+  0 SNES Function norm 9.150968465772e-02
+  1 SNES Function norm 2.030102480494e-04
+  2 SNES Function norm 2.162173695477e-09
+  3 SNES Function norm 1.489997799976e-14
+Step 174: iterations=3, reason=2
+  0 SNES Function norm 9.972372983420e-02
+  1 SNES Function norm 2.867214190858e-04
+  2 SNES Function norm 4.123674431828e-09
+  3 SNES Function norm 1.440381206932e-14
+Step 175: iterations=3, reason=2
+  0 SNES Function norm 1.084572265910e-01
+  1 SNES Function norm 5.305564931983e-04
+  2 SNES Function norm 2.742592461954e-08
+  3 SNES Function norm 1.564632019159e-14
+Step 176: iterations=3, reason=2
+  0 SNES Function norm 1.155641044258e-01
+  1 SNES Function norm 6.605417702698e-04
+  2 SNES Function norm 3.190567105089e-08
+  3 SNES Function norm 1.466096635602e-14
+Step 177: iterations=3, reason=2
+  0 SNES Function norm 1.193957139980e-01
+  1 SNES Function norm 8.364140306886e-04
+  2 SNES Function norm 5.359640505203e-08
+  3 SNES Function norm 1.493593023996e-14
+Step 178: iterations=3, reason=2
+  0 SNES Function norm 1.191213668690e-01
+  1 SNES Function norm 9.273125041024e-04
+  2 SNES Function norm 2.857016582367e-06
+  3 SNES Function norm 1.059689584342e-12
+Step 179: iterations=3, reason=2
+  0 SNES Function norm 1.149684781265e-01
+  1 SNES Function norm 9.123009058269e-04
+  2 SNES Function norm 6.198988954548e-08
+  3 SNES Function norm 1.495402829924e-14
+Step 180: iterations=3, reason=2
+[GLS] t=0.9050 V=317.1049 J=[0.25699,1.52770] J_RMS=0.14226 |Gp|=2.59e-06 |Spspg|=2.59e-06
+  0 SNES Function norm 1.075498657883e-01
+  1 SNES Function norm 8.070831162616e-04
+  2 SNES Function norm 4.660641019727e-08
+  3 SNES Function norm 1.509979651510e-14
+Step 181: iterations=3, reason=2
+  0 SNES Function norm 9.769972015261e-02
+  1 SNES Function norm 6.449748824116e-04
+  2 SNES Function norm 2.857620529069e-08
+  3 SNES Function norm 1.434664189542e-14
+Step 182: iterations=3, reason=2
+  0 SNES Function norm 8.607078232810e-02
+  1 SNES Function norm 4.665213421792e-04
+  2 SNES Function norm 1.439174572125e-08
+  3 SNES Function norm 1.400068095307e-14
+Step 183: iterations=3, reason=2
+  0 SNES Function norm 7.338587546819e-02
+  1 SNES Function norm 3.041156714470e-04
+  2 SNES Function norm 5.894904704896e-09
+  3 SNES Function norm 1.312454274489e-14
+Step 184: iterations=3, reason=2
+  0 SNES Function norm 6.063305761070e-02
+  1 SNES Function norm 1.749648712831e-04
+  2 SNES Function norm 1.869013117695e-09
+  3 SNES Function norm 1.427272835720e-14
+Step 185: iterations=3, reason=2
+  0 SNES Function norm 4.914973327350e-02
+  1 SNES Function norm 8.566169983781e-05
+  2 SNES Function norm 4.224665838294e-10
+  3 SNES Function norm 1.420208674784e-14
+Step 186: iterations=3, reason=2
+  0 SNES Function norm 4.058777135571e-02
+  1 SNES Function norm 5.863448337675e-05
+  2 SNES Function norm 4.862517268740e-10
+  3 SNES Function norm 1.466561631822e-14
+Step 187: iterations=3, reason=2
+  0 SNES Function norm 3.619126083610e-02
+  1 SNES Function norm 1.767418299048e-05
+  2 SNES Function norm 9.098832593893e-12
+Step 188: iterations=2, reason=2
+  0 SNES Function norm 3.554424112851e-02
+  1 SNES Function norm 2.303964148488e-05
+  2 SNES Function norm 1.823944509817e-11
+Step 189: iterations=2, reason=2
+  0 SNES Function norm 3.679561690243e-02
+  1 SNES Function norm 4.183764406963e-05
+  2 SNES Function norm 8.618401471828e-11
+Step 190: iterations=2, reason=2
+[GLS] t=0.9550 V=329.6356 J=[0.27038,1.45880] J_RMS=0.13826 |Gp|=1.55e-06 |Spspg|=1.55e-06
+  0 SNES Function norm 3.798068769165e-02
+  1 SNES Function norm 6.118867946398e-05
+  2 SNES Function norm 1.998694277587e-10
+  3 SNES Function norm 1.559497872283e-14
+Step 191: iterations=3, reason=2
+  0 SNES Function norm 3.799615927191e-02
+  1 SNES Function norm 7.253641653042e-05
+  2 SNES Function norm 2.860508699889e-10
+  3 SNES Function norm 1.548164888398e-14
+Step 192: iterations=3, reason=2
+  0 SNES Function norm 3.659480380295e-02
+  1 SNES Function norm 7.332174999322e-05
+  2 SNES Function norm 2.916407743492e-10
+  3 SNES Function norm 1.468267286679e-14
+Step 193: iterations=3, reason=2
+  0 SNES Function norm 3.387155838046e-02
+  1 SNES Function norm 6.482112968757e-05
+  2 SNES Function norm 2.248662386855e-10
+  3 SNES Function norm 1.417753964826e-14
+Step 194: iterations=3, reason=2
+  0 SNES Function norm 3.008962259875e-02
+  1 SNES Function norm 5.056891097368e-05
+  2 SNES Function norm 1.337640872467e-10
+  3 SNES Function norm 1.358229078680e-14
+Step 195: iterations=3, reason=2
+  0 SNES Function norm 2.559603968224e-02
+  1 SNES Function norm 3.468671429359e-05
+  2 SNES Function norm 6.093395675930e-11
+Step 196: iterations=2, reason=2
+  0 SNES Function norm 2.074848629718e-02
+  1 SNES Function norm 2.026108456935e-05
+  2 SNES Function norm 1.968848932302e-11
+Step 197: iterations=2, reason=2
+  0 SNES Function norm 1.600695653076e-02
+  1 SNES Function norm 9.493268481462e-06
+  2 SNES Function norm 3.846092718236e-12
+Step 198: iterations=2, reason=2
+  0 SNES Function norm 1.198661299659e-02
+  1 SNES Function norm 3.326017495350e-06
+  2 SNES Function norm 3.493192227021e-13
+Step 199: iterations=2, reason=2
+[GLS] t=1.0000 V=336.2030 J=[0.29862,1.40375] J_RMS=0.13585 |Gp|=1.13e-06 |Spspg|=1.13e-06

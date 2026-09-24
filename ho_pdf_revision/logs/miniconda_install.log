@@ -1,0 +1,9 @@
+PREFIX=/workspace/scratch/ddd770c482f2/miniconda3
+Unpacking bootstrapper...
+Unpacking payload...
+
+Installing base environment...
+
+Preparing transaction: ...working... done
+Executing transaction: ...working... done
+installation finished.
