@@ -22,3 +22,7 @@ results_paper/*/log.txt
 results_paper/*/verify.txt
 # share archives
 dist/
+results_dalton/*/vtk/
+results_dalton/*/log.txt
+results_dalton/*/verify.txt
+results_dalton/*/figures/*.png

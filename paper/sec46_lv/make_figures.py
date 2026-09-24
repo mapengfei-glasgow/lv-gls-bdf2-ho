@@ -3,9 +3,11 @@
 The CSV is extracted from results/gls_pdf_fs (GLS P1/P1, HO with mu_eff incl. fs,
 c_t=1.5, c_s=3, C_tau=0.03, C_c=0.1). Cavity volume = exact surface integral over
 the endocardial facets (tools/convergence.py:cavity_volume).
-Run: python make_figures.py   -> figures/lv_*.pdf (+ .png previews)
+Run: python make_figures.py [data.csv [out_dir]]   -> <out_dir>/lv_*.pdf (+ .png previews)
+     defaults: data/lv_timeseries.csv, figures/
 """
 import csv
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -26,7 +28,10 @@ plt.rcParams.update({
     "lines.linewidth": 1.6, "legend.frameon": False, "savefig.bbox": "tight", "savefig.pad_inches": 0.02,
 })
 
-rows = list(csv.DictReader(open(HERE / "data" / "lv_timeseries.csv")))
+DATA = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "data" / "lv_timeseries.csv"
+OUT = Path(sys.argv[2]) if len(sys.argv) > 2 else HERE / "figures"
+OUT.mkdir(parents=True, exist_ok=True)
+rows = list(csv.DictReader(open(DATA)))
 D = {k: np.array([float(r[k]) for r in rows]) for k in rows[0]}
 t = D["time_s"]
 ED = int(np.argmin(abs(t - 0.5)))
@@ -49,8 +54,8 @@ def label(ax, x, y, s, color=INK, **kw):
 
 
 def save(fig, name):
-    fig.savefig(HERE / "figures" / f"{name}.pdf")
-    fig.savefig(HERE / "figures" / f"{name}.png", dpi=200)
+    fig.savefig(OUT / f"{name}.pdf", metadata={"CreationDate": None})
+    fig.savefig(OUT / f"{name}.png", dpi=200)
     plt.close(fig)
 
 
