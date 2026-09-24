@@ -26,3 +26,5 @@ results_dalton/*/vtk/
 results_dalton/*/log.txt
 results_dalton/*/verify.txt
 results_dalton/*/figures/*.png
+# generated rule-based-fibre meshes
+mesh/*_rb/

@@ -26,7 +26,6 @@ def main(mesh_dir, strict=False):
     X, T = f["Mesh/mesh/geometry"][:], f["Mesh/mesh/topology"][:]
     ft, fv = f["MeshTags/facet_tags/topology"][:], f["MeshTags/facet_tags/Values"][:].ravel()
     fb, sh, nm = (f["Mesh/" + k][:] for k in ("fibers", "sheets", "normals"))
-    ok = True
     vol = np.linalg.det(X[T[:, 1:]] - X[T[:, :1]]) / 6
     print(f"{mesh_dir}: {len(X)} nodes, {len(T)} tets, wall volume {abs(vol).sum():.4g} (mesh units^3), "
           f"negative tets {(vol < 0).sum()}")

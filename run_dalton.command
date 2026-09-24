@@ -1,9 +1,9 @@
 #!/bin/bash
-# Real-LV case on a Dalton geometry: same method/parameters as Sec. 4.6
+# Real-LV case on a Dalton geometry with rule-based fibres: same method/parameters as Sec. 4.6
 # (GLS P1/P1, mu_eff incl. fs, c_t=1.5, c_s=3, C_tau=0.03, C_c=0.1, same loads and BCs).
 # Double-click, or: bash run_dalton.command [geom id, default 0000] [conda env, default lv0d3d]
 cd "$(dirname "$0")"
-G="${1:-0000}"; MESH="mesh/dalton_geom_$G"; OUT="results_dalton/geom_$G"
+G="${1:-0000}"; SRC="mesh/dalton_geom_$G"; MESH="${SRC}_rb"; OUT="results_dalton/geom_$G"
 if ! command -v conda >/dev/null; then
   for d in "$HOME/miniconda3" "$HOME/miniforge3" "$HOME/anaconda3" "$HOME/opt/miniconda3" /opt/homebrew/Caskroom/miniconda/base /opt/miniconda3; do
     [ -x "$d/bin/conda" ] && export PATH="$d/bin:$PATH" && break
@@ -12,7 +12,10 @@ fi
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate "${2:-lv0d3d}" || exit 1
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1
-[ -f "$MESH/dalton_lv_mesh.xdmf" ] || bash mesh/download_dalton.command "$G" || exit 1
+[ -f "$SRC/dalton_lv_mesh.xdmf" ] || bash mesh/download_dalton.command "$G" || exit 1
+# The dataset's fibre field does not match its cells (tools/check_mesh.py), so rule-based fibres
+# (+60 deg endo -> -60 deg epi, same convention as the idealized meshes) are generated first.
+[ -f "$MESH/dalton_lv_mesh.xdmf" ] || python tools/rule_based_fibers.py "$SRC" "$MESH" || exit 1
 # Fibre geometry must be plausible (tangent to the wall, helix rotation endo->epi); FORCE=1 overrides.
 if ! python tools/check_mesh.py "$MESH" --strict; then
   if [ "${FORCE:-0}" != "1" ]; then
