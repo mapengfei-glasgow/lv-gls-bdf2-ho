@@ -16,3 +16,4 @@ Miniconda3.sh
 runs/**/vtk/
 out_*/
 output/
+runs/**/*.zip
