@@ -75,11 +75,12 @@ fig, axs = plt.subplots(1, 3, figsize=(6.8, 2.35), constrained_layout=True)
 V, p = D["V_cavity_mL"], D["p_endo_kPa"]
 ax = axs[0]; phases(ax)
 ax.plot(t, V, color=BLUE)
-for i, s, xy in ((ED, "ED", (0.14, 382)), (ES, "ES", (0.70, 150))):
+top = 1.12 * V.max()
+for i, s, xy in ((ED, "ED", (0.10, 1.04 * V.max())), (ES, "ES", (0.70, V[ES] + 0.02 * top))):
     ax.plot(t[i], V[i], "o", ms=4.5, color=BLUE, mec="white", mew=1.0, zorder=3)
     ax.annotate(f"{s}: {V[i]:.0f} mL", (t[i], V[i]), xy, fontsize=8.5,
                 arrowprops=dict(arrowstyle="-", color=INK2, lw=0.6) if s == "ED" else None)
-ax.set_ylim(120, 400)
+ax.set_ylim(0.8 * V.min(), top)
 ax.set_xlabel("$t$ (s)"); ax.set_ylabel("cavity volume $V$ (mL)")
 ax.set_title("(a)", loc="left", fontsize=9, fontweight="bold", pad=3)
 
@@ -113,7 +114,8 @@ fig, axs = plt.subplots(1, 3, figsize=(6.8, 2.3), constrained_layout=True)
 tt = t[1:]
 ax = axs[0]; phases(ax)
 ax.plot(tt, D["newton_iterations"][1:], ls="none", marker="o", ms=2.6, color=BLUE)
-ax.set_ylim(0, 4.5); ax.set_yticks([0, 1, 2, 3, 4])
+nmax = int(D["newton_iterations"].max())
+ax.set_ylim(0, nmax + 0.5); ax.set_yticks(range(nmax + 1))
 ax.set_xlabel("$t$ (s)"); ax.set_ylabel("Newton iterations per step")
 ax.set_title("(a)", loc="left", fontsize=9, fontweight="bold", pad=3)
 ax = axs[1]; phases(ax)

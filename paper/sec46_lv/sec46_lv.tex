@@ -1,8 +1,10 @@
 % =====================================================================
 % Section 4.6  Dynamic left ventricular problem
-% Data: results/gls_pdf_fs (GLS P1/P1, mu_eff^HO of Eq. (43) incl. fs term,
-%       c_t = 1.5, c_s = 3.0, C_tau = 0.03, C_c = 0.1), extracted to
+% Data: results_paper/gls_pdf_fs_h0.35 (run_paper_case.command: GLS P1/P1 on the
+%       h = 0.35 cm mesh, mu_eff^HO of Eq. (43) incl. fs term, c_t = 1.5, c_s = 3.0,
+%       C_tau = 0.03, C_c = 0.1), extracted by extract_data.py to
 %       data/lv_timeseries.csv; plots by make_figures.py.
+% ParaView: results_paper/gls_pdf_fs_h0.35/vtk/gls.pvd, frame k <-> t = 0.005 (k+1) s.
 % Equation/figure numbers of earlier sections are hard-coded via \Eqref{..};
 % replace by \eqref{<your label>} in the main document if preferred.
 % Figures marked "ParaView" are placeholders: drop the PNG/PDF with the
@@ -33,10 +35,10 @@ The LV is represented by an idealized truncated prolate ellipsoid with the long 
 $X_1$ (Fig.~\ref{fig:lv_setup}). The endocardial and epicardial surfaces are ellipsoids
 with semi-axes $(9.0,\,2.5,\,2.5)$\,cm and $(9.7,\,3.5,\,3.5)$\,cm, respectively, and the
 base is a conical cut between $X_1=2.65$\,cm on the endocardium and $X_1=2.43$\,cm on the
-epicardium. The reference cavity volume is $V_0=159.9$\,mL. The myocardium is discretized
-with 972 linear tetrahedra and 324 vertices, i.e., 1296 velocity--pressure degrees of
-freedom, with element sizes $h_K\in[10.2,\,43.2]$\,mm; the boundary consists of 224
-endocardial, 356 epicardial, and 30 basal facets. The fiber field follows a rule-based
+epicardium. The reference cavity volume is $V_0=167.7$\,mL. The myocardium is discretized
+with 21\,707 linear tetrahedra and 5840 vertices, i.e., 23\,360 velocity--pressure degrees
+of freedom, with element sizes $h_K\in[2.6,\,8.2]$\,mm; the boundary consists of 3590
+endocardial, 4638 epicardial, and 430 basal facets. The fiber field follows a rule-based
 construction: a transmural coordinate $\phi\in[0,1]$ is obtained from a Laplace problem with
 $\phi=0$ on the endocardium and $\phi=1$ on the epicardium, and the fiber direction
 $\mathrm{f}_0$ is rotated in the local circumferential--longitudinal plane with a helix
@@ -158,7 +160,7 @@ automatic differentiation.
     Boundary conditions & $\beta_{\mathrm{epi}},\ \gamma$ & $5\times10^{3}$\,Pa\,s/m, $10^{6}$\,Pa/m \\
     Fiber architecture & helix angle (endo $\to$ epi) & $+60^\circ \to -60^\circ$ \\
     GLS parameters & $c_t,\ c_s,\ C_\tau,\ C_c$ & $1.5,\ 3.0,\ 0.03,\ 0.1$ \\
-    Discretization & elements / vertices / DOFs & 972 / 324 / 1296 \\
+    Discretization & elements / vertices / DOFs & 21\,707 / 5840 / 23\,360 \\
                    & $\Delta t$, steps & $5\times10^{-3}$\,s, 200 \\
     \bottomrule
   \end{tabular}
@@ -175,21 +177,21 @@ automatic differentiation.
 
 \paragraph{Results.}
 The simulation completes the full cycle without any adjustment of the time step or of the
-stabilization parameters. All 200 steps converge in two or three Newton iterations
-(Fig.~\ref{fig:lv_numerics}a), with the largest final residual norm $3.2\times10^{-10}$,
-including the transitions at the onset and the end of contraction where the loading changes
-most rapidly.
+stabilization parameters. Of the 200 steps, 195 converge in two or three Newton iterations
+(Fig.~\ref{fig:lv_numerics}a); at most six iterations are needed at the onset of active
+contraction ($t=0.52$--$0.54$\,s), where $T_a$ and $p_{\mathrm{endo}}$ rise most rapidly.
+The largest final residual norm over the cycle is $2.5\times10^{-10}$.
 
 Fig.~\ref{fig:lv_deformation} shows the deformed configurations at the reference state, at
 end diastole ($t=0.5$\,s), at end systole ($t=0.655$\,s, minimum cavity volume), and at the
 end of the cycle. The deformation is large throughout. During passive filling the cavity
-volume increases from 159.9\,mL to 361.7\,mL, the long-axis length increases by 26\,\%
-(from 121.3\,mm to 152.5\,mm), and the maximum displacement reaches 32.8\,mm, about
-27\,\% of the reference long-axis length. Active contraction then reduces the cavity volume
-to 137.8\,mL, corresponding to an ejection fraction of 61.9\,\%
+volume increases from 167.7\,mL to 394.9\,mL, the long-axis length increases by 27\,\%
+(from 122.3\,mm to 155.1\,mm), and the maximum displacement reaches 34.5\,mm, about
+28\,\% of the reference long-axis length. Active contraction then reduces the cavity volume
+to 145.7\,mL, corresponding to an ejection fraction of 63.1\,\%
 (Fig.~\ref{fig:lv_global}a). The contraction exhibits the characteristic kinematics of the
-ventricle: relative to end diastole, the long axis shortens by 14.1\,\% and the equatorial
-wall thickens by 73\,\% (from 6.0\,mm to 10.4\,mm, Fig.~\ref{fig:lv_global}c). The
+ventricle: relative to end diastole, the long axis shortens by 11.6\,\% and the equatorial
+wall thickens by 62\,\% (from 6.3\,mm to 10.2\,mm, Fig.~\ref{fig:lv_global}c). The
 pressure--volume loop in Fig.~\ref{fig:lv_global}b displays the filling, contraction,
 ejection, and relaxation phases of the cycle.
 
@@ -198,12 +200,12 @@ Fig.~\ref{fig:lv_pressure} presents the pressure field $p_h$ on the deformed con
 The pressure remains smooth across the wall at all stages of the cycle, without the
 element-scale checkerboard patterns of the unstabilized equal-order discretization observed
 in the preceding benchmarks. Its extreme values stay bounded and follow the applied
-cavity pressure (Fig.~\ref{fig:lv_numerics}c), with $p_h\in[-1.40,\,12.10]$\,kPa over the
+cavity pressure (Fig.~\ref{fig:lv_numerics}c), with $p_h\in[-2.07,\,8.17]$\,kPa over the
 cycle compared with the peak endocardial pressure of 14.5\,kPa. Since the incompressibility
 constraint is imposed in the rate form of Eq.~(20c), the volume of the myocardial wall is
 preserved in an integral sense: the mean Jacobian
 $\bar J=|\Omega_0|^{-1}\int_{\Omega_0}J_h\,\mathrm{d}\Omega$ deviates from unity by at most
-$0.24\,\%$ over the cycle (Fig.~\ref{fig:lv_numerics}b), and the deviation arises almost
+$0.20\,\%$ over the cycle (Fig.~\ref{fig:lv_numerics}b), and the deviation arises almost
 entirely during the active phase.
 
 These results show that the proposed GLS-stabilized $P_1/P_1$ formulation, with the

@@ -17,3 +17,6 @@ paper/**/*.log
 paper/**/*.fls
 paper/**/*.fdb_latexmk
 paper/**/figures/*.png
+results_paper/*/vtk/
+results_paper/*/log.txt
+results_paper/*/verify.txt
