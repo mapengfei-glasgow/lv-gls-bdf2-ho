@@ -96,4 +96,4 @@ tools/generate_mesh.py 生成 lv_aha17_v2_plain 网格（需 gmsh），例：
 - 敏感性（`run_all` 的 10 个算例）：
   - 在 $\mu_{\text{eff}}$ 中计入 fs 项（`gls_pdf_fs`）几乎不影响解：$V$ 相差 < 0.1%，$J$ 极值和 $\mathrm{RMS}(J-1)$ 相差 < 1%，压力极值相差 < 5%。
   - GLS 结果对 LSIC 强度很敏感：$C_c$ 从 0.1 增大到 100 时，$\max\mathrm{RMS}(J-1)$ 从 0.198 降到 0.102，末时刻 $V$ 变化 10%。可见在这套网格上，GLS 的解还受稳定参数控制，没有达到网格无关。
-  - 即使 $C_c=100$（$\tau_c/\Delta t\sim10^6$ Pa，与 `lagrange` 的 $\beta$ 同量级），GLS 的 $\mathrm{RMS}(J-1)$ 仍比 `lagrange`/`p1` 大约 4 倍，而且收缩期过后不会回落（0.08 → 0.10；`lagrange` 为 0.024 → 0.006）。原因是速率约束 $\mathbf H:\nabla\mathbf v$ 只惩罚体积变化率，对已经累积的 $J-1$ 没有恢复力。要改善这一点，需要在约束中加入 $J-1$ 项（相应地，稳定项的时间尺度要除以 $\Delta t$ 配平）。
+  - 局部体积误差主要由局部体积刚度决定，和单元类型关系不大：`lagrange_pure`（P2/P1，$\beta=0$）的 $\max\mathrm{RMS}(J-1)=0.33$，比 `gls_pdf` 还大；`lagrange`（$\beta=10^6$）和 `p1`（$\kappa=10^6$）好，是因为有 $10^6$ Pa 的局部刚度。约束写成速率形式还是 $J-1$ 形式影响有多大，现有算例还不能单独区分。

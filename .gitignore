@@ -6,3 +6,8 @@ __pycache__/
 results/*/vtk/
 results/*/log.txt
 results/*/verify.txt
+# generated refinement meshes (reproducible with convergence.command) and their VTK
+mesh/lv_plain_h*/
+results_convergence/*/vtk/
+results_convergence/*/log.txt
+results_convergence/*/verify.txt
