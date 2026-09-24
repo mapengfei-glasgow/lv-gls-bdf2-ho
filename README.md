@@ -109,3 +109,15 @@ paper/sec46_lv/        论文 4.6 节：tex、图、数据、run_paper_case.comm
   - 全局量大致收敛：用曲面积分计算的腔体体积 $V(1\,\mathrm s)$ 依次为 355 / 372 / 376 / 388 / 390 mL，末两级相差 1.3%。
   - 局部不可压缩性不收敛：$\max\mathrm{RMS}(J-1)$ 依次为 0.197 / 0.187 / 0.166 / 0.361 / 0.371，$J_{\max}$ 从 1.85 增大到 3.03。在最细一级上，误差分布在收缩期约 29% 的心肌体积里，不是只集中在基底或心尖；舒张期的 RMS 仍在 0.08 左右。
   - `monitor.csv` 里的 `V_mL` 是 Delaunay 估计，大变形下不可靠（加密研究中各级之间最多相差 2 倍），改用 `tools/convergence.py` 中的 `cavity_volume`。
+
+## 代理模型（surrogate/）
+
+训练数据由本文 GLS 求解器生成（`lvsolver.run --no-vtk --save-fields`），网格来自 HF Dalton 数据集，纤维用 `tools/rule_based_fibers.py` 生成（+60°/−60°），不使用数据集自带纤维。
+除几何外还变化 8 个参数：$a,b,a_f,b_f$（名义值 ×[2/3, 1.5]，对数均匀），$T_a$ 幅值、$p_{\mathrm{ED}}$、$p$ 收缩幅值、周期 $T$（范围见 `surrogate/params.py`）。
+
+```bash
+bash surrogate/run_smoke.command          # 下载 10 个几何 → Sobol 参数 → 求解 → 训练 → 评估
+python -m surrogate.sample_params --ids 0000-2966 --out params_all.csv    # 服务器全量
+python -m surrogate.generate params_all.csv surrogate_data --jobs 32
+```
+训练环境：`conda env create -f environment_ml.yml`（lvml）。数据格式见 `lvsolver/export.py`。

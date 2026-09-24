@@ -1,0 +1,15 @@
+# Training environment of the surrogate (surrogate/train.py, evaluate.py); the solver keeps environment.yml.
+#   conda env create -f environment_ml.yml     (torch from PyPI: CUDA on Linux, MPS on Apple silicon)
+name: lvml
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - meshio
+  - h5py
+  - pip
+  - pip:
+      - torch>=2.2

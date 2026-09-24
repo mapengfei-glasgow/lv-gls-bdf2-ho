@@ -4,8 +4,11 @@
   python -m lvsolver.run --method lagrange --beta 0 --out results/lagrange_pure
   python -m lvsolver.run --method gls --tau pdf --out results/gls_pdf
   python -m lvsolver.run --method gls --tau reference --no-stab --steps 3 --out results/x
+  python -m lvsolver.run --method gls --include-fs --set a=300 --ta-amp 70 --period 0.8 \
+      --dt 0.004 --no-vtk --save-fields --out results/y      # surrogate training data
 """
 import argparse
+import functools
 import csv
 import json
 import xml.etree.ElementTree as ET
@@ -21,7 +24,8 @@ from scipy.spatial import cKDTree
 
 from .material import MATERIALS
 from .mesh import LVGeometry, LeftVentricleCapacity, compute_base_center
-from .model import CONSTITUTIVE_PARAMS, KPA_TO_PA, Ta_kPa, p_endo_kPa
+from .export import FieldRecorder
+from .model import CONSTITUTIVE_PARAMS, KPA_TO_PA, P_AMP_KPA, P_ED_KPA, TA_AMP_KPA, Ta_kPa, p_endo_kPa
 from .problems import METHODS
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,7 +43,7 @@ def parse_args(argv=None):
     ap.add_argument("--out", type=Path, required=True, help="new or empty output directory")
     g = ap.add_argument_group("time")
     g.add_argument("--dt", type=float, default=0.005)
-    g.add_argument("--t-end", type=float, default=1.0)
+    g.add_argument("--t-end", type=float, default=None, help="default: one cycle (--period)")
     g.add_argument("--steps", type=int, default=None, help="default round(t_end/dt)")
     g = ap.add_argument_group("mesh")
     g.add_argument("--mesh", type=Path, default=ROOT / "mesh" / "lv_aha17_v2_plain")
@@ -49,6 +53,17 @@ def parse_args(argv=None):
     g = ap.add_argument_group("material")
     g.add_argument("--material", choices=sorted(MATERIALS), default=None,
                    help="default: ho_pdf for gls --tau pdf, ho otherwise")
+    g.add_argument("--set", action="append", default=[], metavar="KEY=VALUE",
+                   help="override a constitutive constant, e.g. --set a=300 --set b_f=2.0 (Pa or -)")
+    g = ap.add_argument_group("loads (Eqs. 79/80)")
+    g.add_argument("--p-ed", type=float, default=P_ED_KPA, help="diastolic pressure plateau, kPa")
+    g.add_argument("--p-amp", type=float, default=P_AMP_KPA, help="systolic pressure amplitude, kPa")
+    g.add_argument("--ta-amp", type=float, default=TA_AMP_KPA, help="active tension amplitude, kPa")
+    g.add_argument("--period", type=float, default=1.0, help="cycle length T, s; curves evaluated at t/T")
+    g = ap.add_argument_group("output")
+    g.add_argument("--no-vtk", action="store_true", help="do not write VTU frames")
+    g.add_argument("--save-fields", action="store_true",
+                   help="write nodal u, p time series to <out>/fields/ (P1 only; see lvsolver/export.py)")
     g = ap.add_argument_group("lagrange")
     g.add_argument("--beta", type=float, default=1e6, help="augmentation beta/2 (J-1)^2, Pa; 0 = pure multiplier")
     g = ap.add_argument_group("gls")
@@ -64,13 +79,24 @@ def parse_args(argv=None):
     g.add_argument("--c1", type=float, default=1.0)
     g.add_argument("--c2", type=float, default=2.0)
     g.add_argument("--mu-ref", type=float, default=None, help="default a+a_f+a_s+a_fs")
-    return ap.parse_args(argv)
+    args = ap.parse_args(argv)
+    args.params = dict(CONSTITUTIVE_PARAMS)
+    for item in args.set:
+        key, _, value = item.partition("=")
+        if key not in CONSTITUTIVE_PARAMS or not value:
+            ap.error(f"--set {item}: expected KEY=VALUE with KEY in {sorted(CONSTITUTIVE_PARAMS)}")
+        args.params[key] = float(value)
+    args.p_curve = functools.partial(p_endo_kPa, p_ed=args.p_ed, p_amp=args.p_amp, period=args.period)
+    args.ta_curve = functools.partial(Ta_kPa, ta_amp=args.ta_amp, period=args.period)
+    if args.t_end is None:
+        args.t_end = args.period
+    return args
 
 
 def build(args, geo, base_center):
     material_name = args.material or ("ho_pdf" if args.method == "gls" and args.tau == "pdf" else "ho")
-    material = MATERIALS[material_name](geo.f0, geo.s0, geo.msh, parameters=CONSTITUTIVE_PARAMS)
-    loads = (lambda t: p_endo_kPa(t) * KPA_TO_PA, lambda t: Ta_kPa(t) * KPA_TO_PA)
+    material = MATERIALS[material_name](geo.f0, geo.s0, geo.msh, parameters=args.params)
+    loads = (lambda t: args.p_curve(t) * KPA_TO_PA, lambda t: args.ta_curve(t) * KPA_TO_PA)
     common = dict(dt=args.dt, loads=loads, base_center=base_center, long_axis=args.long_axis)
     if args.method == "lagrange":
         extra = dict(beta=args.beta)
@@ -99,8 +125,10 @@ def main(argv=None):
     if args.dt <= 0 or nsteps < 1:
         raise ValueError("positive dt and steps required")
     out, vtk_dir = args.out, args.out / "vtk"
-    vtk_dir.mkdir(parents=True, exist_ok=True)
-    if any(vtk_dir.glob("*.vtu")):
+    out.mkdir(parents=True, exist_ok=True)
+    if not args.no_vtk:
+        vtk_dir.mkdir(exist_ok=True)
+    if any(vtk_dir.glob("*.vtu")) or (out / "fields").exists():
         raise RuntimeError(f"{vtk_dir} already has frames: choose a new --out")
 
     endo, epi, base = args.tags
@@ -111,7 +139,9 @@ def main(argv=None):
     capacity = LeftVentricleCapacity(mesh, geo.bdry, geo.bdry_markers, ("CG", problem.degree, (3,)))
 
     metadata = dict(problem.configuration, material=material_name, dt_s=args.dt, requested_steps=nsteps,
-                    material_parameters=CONSTITUTIVE_PARAMS, rho_kg_m3=problem.parameters["rho"],
+                    material_parameters=args.params,
+                    loads=dict(p_ed_kPa=args.p_ed, p_amp_kPa=args.p_amp, ta_amp_kPa=args.ta_amp,
+                               period_s=args.period), rho_kg_m3=problem.parameters["rho"],
                     mesh=Path(args.mesh).name, mesh_path=str(Path(args.mesh).resolve()),
                     mesh_scale=args.scale, long_axis=args.long_axis,
                     base_center_m=[float(c) for c in center],
@@ -128,6 +158,11 @@ def main(argv=None):
     else:
         assert np.all(cell_types == 71)
         cells = [("VTK_LAGRANGE_TETRAHEDRON", topology.reshape(-1, 11)[:, 1:])]
+    recorder = None
+    if args.save_fields:
+        if problem.degree != 1 or problem.p is None:
+            raise ValueError("--save-fields needs the P1/P1 velocity-pressure output (gls, velocity degree 1)")
+        recorder = FieldRecorder(args.mesh, args.scale, points, {"epi": epi, "base": base, "endo": endo})
     if problem.p is not None:
         Q = fem.functionspace(mesh, ("Lagrange", problem.degree))
         p_out = fem.Function(Q)
@@ -173,7 +208,7 @@ def main(argv=None):
                 u = problem.u.x.array.reshape(-1, 3).copy()
                 v = problem.velocity.x.array.reshape(-1, 3).copy()
                 jc = Jfun.x.array[cmap].copy()
-                row = dict(time_s=t, p_endo_kPa=p_endo_kPa(t), Ta_kPa=Ta_kPa(t),
+                row = dict(time_s=t, p_endo_kPa=args.p_curve(t), Ta_kPa=args.ta_curve(t),
                            V_mL=capacity.calculate_volume(problem.u) * 1e6,
                            J_center_min=float(jc.min()), J_center_max=float(jc.max()),
                            J_quad_min=float(jq.min()), J_quad_max=float(jq.max()),
@@ -191,16 +226,24 @@ def main(argv=None):
                     raise RuntimeError(f"nonfinite output at step {step}")
                 cell_data = {"J": [jc], "f0": [f0], "s0": [s0],
                              **{name: [fun.x.array[cmap].copy()] for name, (fun, _) in scales.items()}}
-                meshio.write(vtk_dir / f"{args.method}_{step:05d}.vtu", meshio.Mesh(points, cells, point_data, cell_data))
+                if not args.no_vtk:
+                    meshio.write(vtk_dir / f"{args.method}_{step:05d}.vtu",
+                                 meshio.Mesh(points, cells, point_data, cell_data))
+                if recorder is not None:
+                    recorder.record(t, u, point_data["pressure_Pa"], row["p_endo_kPa"], row["Ta_kPa"])
                 writer.writerow(row)
                 fh.flush()
                 times.append(t)
-                write_pvd(vtk_dir / f"{args.method}.pvd", args.method, times)
+                if not args.no_vtk:
+                    write_pvd(vtk_dir / f"{args.method}.pvd", args.method, times)
                 problem.advance()
                 if step % 10 == 0 or step == nsteps - 1:
                     print(f"[{args.method}] t={t:.4f} V={row['V_mL']:.4f} mL "
                           f"J=[{row['J_quad_min']:.5f},{row['J_quad_max']:.5f}] "
                           f"J_RMS={row['J_minus_1_RMS']:.5g} |u|max={row['max_u_m']:.5g}", flush=True)
+        if recorder is not None:
+            recorder.write(out, dict(args.params, **metadata["loads"], dt_s=args.dt, steps=nsteps),
+                           load0=(args.p_curve(0.0), args.ta_curve(0.0)))
         metadata.update(status="completed", completed_steps=len(times))
     except Exception as exc:
         metadata.update(status="failed", completed_steps=len(times), error=str(exc))
