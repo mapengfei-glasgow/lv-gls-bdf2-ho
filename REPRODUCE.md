@@ -36,7 +36,7 @@ python tools/compare_runs.py results --ref-git HEAD      # 默认容差 1e-10
 
 **注意：** 加密网格由 gmsh 现场生成，gmsh 版本不同时网格可能不同（例如 h = 1.5 在一个版本下是 899 单元，另一个版本是 972 单元）。
 复现前先核对单元数：h = 1.5 / 1.0 / 0.7 / 0.5 / 0.35 应分别为 899 / 1921 / 3786 / 8954 / 21707 个单元（见 `mesh/lv_plain_h*/info.json`）。
-如果单元数不同，结果会有差别但结论相同。若要逐位复现，需要另外传递 `mesh/lv_plain_h*/`（h = 0.35 约 1 MB）。
+如果单元数不同，结果会有差别但结论相同。若要逐位复现，需要另外传递 `mesh/lv_plain_h*/`（h = 0.35 约 3 MB）。
 
 ## 4. 自己取数据重新画图
 
@@ -64,7 +64,7 @@ python -m lvsolver.run --method gls --tau pdf --include-fs --mesh mesh/dalton_ge
 
 ## 6. 分享给别人
 
-- **快照压缩包（推荐）：** 在仓库根目录运行 `git archive --format=zip -o dist/lvsolver.zip HEAD`，得到只含已提交文件的 zip（约 10 MB）。对方解压后按第 2、3 节操作即可。
+- **快照压缩包（推荐）：** 在仓库根目录运行 `git archive --format=zip -o dist/lvsolver.zip HEAD`，得到只含已提交文件的 zip（约 6 MB）。对方解压后按第 2、3 节操作即可。
 - **带完整历史：** `git bundle create dist/lvsolver.bundle --all`；对方运行 `git clone lvsolver.bundle lvsolver` 即可得到完整仓库。
 - **长期协作：** 推送到 GitHub 或 GitLab 的私有仓库。
 - VTK 结果不要打包，对方运行脚本就能重新生成。如果对方只需要看 ParaView 图而不想运行，可以单独打包某一个算例的 `vtk/` 文件夹（例如 `results_paper/gls_pdf_fs_h0.35/vtk`，约 570 MB，压缩后会小一些）。
