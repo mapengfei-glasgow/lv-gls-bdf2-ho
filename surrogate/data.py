@@ -40,7 +40,7 @@ class Case:
 
 
 class LVDataset:
-    def __init__(self, root):
+    def __init__(self, root, cached_cases=None, splits=None):
         self.root = Path(root).resolve()
         with (self.root / "params.csv").open() as manifest:
             rows = list(csv.DictReader(manifest))
@@ -54,14 +54,18 @@ class LVDataset:
                 self.coeff_map[cr["geom"]] = np.array([float(cr[c]) for c in cols], dtype=np.float32)
             self.coeff_dim = len(cols)
         self.cases = []
+        cached_cases = cached_cases or {}
         for r in rows:
+            if splits is not None and r["split"] not in splits:
+                continue
             d = self.root / r["case"]
             try:
                 ok = json.loads((d / "metadata.json").read_text())["status"] == "completed"
             except (OSError, ValueError, KeyError):
                 ok = False
             if ok and (d / "fields" / "u.npy").exists():
-                self.cases.append(Case(d, r, self.coeff_map))
+                case = cached_cases.get(r["case"])
+                self.cases.append(case if case is not None else Case(d, r, self.coeff_map))
         if not self.cases:
             raise RuntimeError(f"no completed cases in {self.root}")
         f = self.cases[0].dir / "fields"

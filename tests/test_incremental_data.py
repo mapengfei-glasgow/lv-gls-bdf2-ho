@@ -3,10 +3,11 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 
-from surrogate.data import LVDataset
+from surrogate.data import Case, LVDataset
 from surrogate.params import NAMES, SPACE
 from surrogate.train_base import add_completed_cases
 
@@ -35,14 +36,21 @@ class IncrementalDataTest(unittest.TestCase):
                     for key, array in arrays.items():
                         np.save(fields / f'{key}.npy', array)
             ds = LVDataset(root)
-            train, added = add_completed_cases(ds, ds.split('train'))
+            with patch('surrogate.data.Case', wraps=Case) as load_case:
+                train, added = add_completed_cases(ds, ds.split('train'))
+                load_case.assert_not_called()
             self.assertEqual([c.name for c in train], ['base'])
             self.assertFalse(added)
             (root / 'new/metadata.json').write_text(json.dumps({'status': 'completed'}))
-            train, added = add_completed_cases(ds, train)
+            with patch('surrogate.data.Case', wraps=Case) as load_case:
+                train, added = add_completed_cases(ds, train)
+                self.assertEqual(load_case.call_count, 1)
+                self.assertEqual(load_case.call_args.args[1]['case'], 'new')
             self.assertEqual([c.name for c in train], ['base', 'new'])
             self.assertEqual([c.name for c in added], ['new'])
-            train, added = add_completed_cases(ds, train)
+            with patch('surrogate.data.Case', wraps=Case) as load_case:
+                train, added = add_completed_cases(ds, train)
+                load_case.assert_not_called()
             self.assertFalse(added)
             self.assertEqual(len(train), 2)
 

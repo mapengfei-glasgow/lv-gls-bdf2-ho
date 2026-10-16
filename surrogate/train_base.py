@@ -24,7 +24,8 @@ AUG_KW = dict(root_leaf_factor=4, min_root_nodes=6, n_nearest_nbrs=3)
 
 def add_completed_cases(ds, train, validate_mean=False):
     """Append completed training cases; retain the existing sample order and splits."""
-    fresh = LVDataset(ds.root)
+    cached = {c.name: c for c in ds.cases + train}
+    fresh = LVDataset(ds.root, cached_cases=cached, splits={"train"})
     np.testing.assert_array_equal(fresh.cells, ds.cells)
     np.testing.assert_array_equal(fresh.node_tags, ds.node_tags)
     known = {c.name for c in train}
@@ -72,6 +73,18 @@ def main():
     torch.manual_seed(a.seed)
     rng = np.random.default_rng(a.seed)
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Each trajectory has a memory-mapped file. Leave headroom for the full
+    # campaign and validation rather than inheriting a 1024-descriptor shell limit.
+    try:
+        import resource
+    except ImportError:
+        pass
+    else:
+        soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+        target = 8192 if hard == resource.RLIM_INFINITY else min(8192, hard)
+        if soft != resource.RLIM_INFINITY and soft < target:
+            resource.setrlimit(resource.RLIMIT_NOFILE, (target, hard))
+            print(f"file descriptor soft limit raised to {target}", flush=True)
 
     ds = LVDataset(a.data)
     train = ds.split("train")
