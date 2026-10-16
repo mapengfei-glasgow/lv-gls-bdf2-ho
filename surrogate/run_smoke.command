@@ -11,10 +11,13 @@ if ! command -v conda >/dev/null; then
 fi
 source "$(conda info --base)/etc/profile.d/conda.sh"
 set -e
-bash mesh/download_dalton.command 0001 0002 0003 0004 0005 0006 0007 0008 2400 2401
+# Meshes come from data/dalton (local copy of the Dalton set; geom_XXXX layout).
+for G in 0001 0002 0003 0004 0005 0006 0007 0008 2400 2401; do
+  [ -f "data/dalton/geom_$G/dalton_lv_mesh.xdmf" ] || { echo "missing data/dalton/geom_$G"; exit 1; }
+done
 conda activate lv0d3d
 [ -f surrogate_data/params.csv ] || python -m surrogate.sample_params --ids 0001-0008 2400 2401 --out surrogate_data/params.csv
-python -m surrogate.generate surrogate_data/params.csv surrogate_data --jobs "$JOBS" || echo "some cases failed: see surrogate_data/status.tsv"
+python -m surrogate.generate surrogate_data/params.csv surrogate_data --mesh-root data/dalton --jobs "$JOBS" || echo "some cases failed: see surrogate_data/status.tsv"
 conda env list | grep -q "^lvml " || conda env create -f environment_ml.yml
 conda activate lvml
 python -m surrogate.train surrogate_data --out surrogate_runs/smoke --iters "$ITERS" --latent 64 --mp-steps 6 \

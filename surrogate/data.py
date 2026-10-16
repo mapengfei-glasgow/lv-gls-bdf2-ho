@@ -4,6 +4,8 @@ State of a trajectory: nodal displacement u_n (m); v_n = (u_n - u_{n-1})/dt_n.
 Network target (per real node): Delta_n = u_{n+1} - u_n - dt v_n = u_{n+1} - 2 u_n + u_{n-1}.
 Node features (NODE_IN = 18):  v_n (3) | tags endo/epi/base (3) | virtual flag (1) |
     8 parameters in [-1, 1] (surrogate/params.py) | p_endo, Ta at t_{n+1} in kPa (2) | dt (1)
+    | optional 16 PCA shape coefficients (z_i = score_i / sigma_i, PCs 0-15) appended when
+the data root has a shape_coeffs.csv and the caller passes coeff_dim=16 (NODE_IN + 16).
 Edge features (EDGE_IN = 8):   X_j - X_i, |X_j - X_i|, x_j - x_i, |x_j - x_i|   (x = X + u;
     virtual nodes do not move).
 """
@@ -22,11 +24,12 @@ EDGE_IN = 8
 
 
 class Case:
-    def __init__(self, d, row):
+    def __init__(self, d, row, coeff_map=None):
         f = d / "fields"
         self.name, self.geom, self.split = row["case"], row["geom"], row["split"]
         self.params = np.array([float(row[k]) for k in NAMES])
         self.punit = to_unit(self.params)[0].astype(np.float32)
+        self.coeff = coeff_map.get(self.geom) if coeff_map else None
         self.coords = np.load(f / "coords.npy")
         self.u = np.load(f / "u.npy", mmap_mode="r")          # (T+1, N, 3)
         self.loads = np.load(f / "loads.npy").astype(np.float32)
@@ -40,6 +43,15 @@ class LVDataset:
     def __init__(self, root):
         self.root = Path(root).resolve()
         rows = list(csv.DictReader((self.root / "params.csv").open()))
+        # optional PCA shape coefficients per geometry (z = score / sigma, PCs 0-15)
+        self.coeff_map, self.coeff_dim = {}, 0
+        cf = self.root / "shape_coeffs.csv"
+        if cf.exists():
+            crows = list(csv.DictReader(cf.open()))
+            cols = [c for c in crows[0] if c != "geom"] if crows else []
+            for cr in crows:
+                self.coeff_map[cr["geom"]] = np.array([float(cr[c]) for c in cols], dtype=np.float32)
+            self.coeff_dim = len(cols)
         self.cases = []
         for r in rows:
             d = self.root / r["case"]
@@ -48,7 +60,7 @@ class LVDataset:
             except (OSError, ValueError, KeyError):
                 ok = False
             if ok and (d / "fields" / "u.npy").exists():
-                self.cases.append(Case(d, r))
+                self.cases.append(Case(d, r, self.coeff_map))
         if not self.cases:
             raise RuntimeError(f"no completed cases in {self.root}")
         f = self.cases[0].dir / "fields"
@@ -99,8 +111,10 @@ class LVDataset:
 class Graph:
     """Augmented graph on the device, batched feature assembly."""
 
-    def __init__(self, aug, tags, device):
+    def __init__(self, aug, tags, device, coeff_dim=0):
         self.aug, self.device = aug, device
+        self.coeff_dim = coeff_dim
+        self.node_dim = NODE_IN + coeff_dim
         self.n_real, self.n_total, self.n_edges = aug["n_real"], aug["n_total"], aug["n_edges"]
         topo = torch.as_tensor(aug["topology"], dtype=torch.long, device=device)
         self.snd, self.rcv = topo[:, 0], topo[:, 1]
@@ -117,13 +131,19 @@ class Graph:
         """cases: list of B Case; u, v: (B, n_real, 3); load: (B, 2); dt: (B,) ->
         node features (B*n_total, NODE_IN), edge features (B*n_edges, EDGE_IN), senders, receivers."""
         B, nr, nt, dev = len(cases), self.n_real, self.n_total, self.device
-        x = torch.zeros(B, nt, NODE_IN, device=dev)
+        x = torch.zeros(B, nt, self.node_dim, device=dev)
         x[:, :nr, 0:3] = v
         x[:, :nr, 3:6] = self.tags
         x[:, nr:, 6] = 1.0
         x[:, :, 7:15] = torch.stack([torch.as_tensor(c.punit, device=dev) for c in cases])[:, None, :]
         x[:, :, 15:17] = load[:, None, :]
         x[:, :, 17] = dt[:, None]
+        if self.coeff_dim:
+            cc = torch.zeros(B, self.coeff_dim, device=dev)
+            for i, c in enumerate(cases):
+                if c.coeff is not None:
+                    cc[i] = torch.as_tensor(c.coeff, device=dev)
+            x[:, :, NODE_IN:NODE_IN + self.coeff_dim] = cc[:, None, :]
         X = torch.stack([self.coords(c) for c in cases])                  # (B, nt, 3)
         ua = torch.zeros(B, nt, 3, device=dev)
         ua[:, :nr] = u
@@ -131,7 +151,7 @@ class Graph:
         cur = ref + ua[:, self.rcv] - ua[:, self.snd]
         e = torch.cat([ref, ref.norm(dim=-1, keepdim=True), cur, cur.norm(dim=-1, keepdim=True)], dim=-1)
         off = (torch.arange(B, device=dev) * nt).repeat_interleave(self.n_edges)
-        return (x.reshape(-1, NODE_IN), e.reshape(-1, EDGE_IN),
+        return (x.reshape(-1, self.node_dim), e.reshape(-1, EDGE_IN),
                 self.snd.repeat(B) + off, self.rcv.repeat(B) + off)
 
 

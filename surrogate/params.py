@@ -41,8 +41,10 @@ def to_unit(x):
 
 
 def solver_args(row):
-    """Command-line options of lvsolver.run for one parameter row (dict)."""
-    return ["--set", f"a={row['a']:.8g}", "--set", f"b={row['b']:.8g}",
-            "--set", f"a_f={row['a_f']:.8g}", "--set", f"b_f={row['b_f']:.8g}",
-            "--ta-amp", f"{row['ta_amp_kPa']:.8g}", "--p-ed", f"{row['p_ed_kPa']:.8g}",
-            "--p-amp", f"{row['p_amp_kPa']:.8g}", "--period", f"{row['period_s']:.8g}"]
+    """Command-line options of lvsolver.run for one parameter row (dict, values str or float)."""
+    a, b, a_f, b_f = (float(row[k]) for k in ("a", "b", "a_f", "b_f"))
+    ta_amp, p_ed, p_amp, period = (float(row[k]) for k in ("ta_amp_kPa", "p_ed_kPa", "p_amp_kPa", "period_s"))
+    return ["--set", f"a={a:.8g}", "--set", f"b={b:.8g}",
+            "--set", f"a_f={a_f:.8g}", "--set", f"b_f={b_f:.8g}",
+            "--ta-amp", f"{ta_amp:.8g}", "--p-ed", f"{p_ed:.8g}",
+            "--p-amp", f"{p_amp:.8g}", "--period", f"{period:.8g}"]

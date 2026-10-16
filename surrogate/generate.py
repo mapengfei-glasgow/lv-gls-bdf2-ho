@@ -39,7 +39,7 @@ def done(d):
         return False
 
 
-def one(row, out, mesh_root, steps, extra, status):
+def one(row, out, mesh_root, steps, extra, status, loose=False):
     d = out / row["case"]
     if done(d):
         return "skip"
@@ -56,7 +56,7 @@ def one(row, out, mesh_root, steps, extra, status):
     period = float(row["period_s"])
     steps_ = [
         ("fibres", [sys.executable, "tools/rule_based_fibers.py", str(find_mesh(mesh_root, row["geom"])), str(mesh)], "fibres.log"),
-        ("check", [sys.executable, "tools/check_mesh.py", str(mesh), "--strict"], "check.txt"),
+        ("check", [sys.executable, "tools/check_mesh.py", str(mesh)] + ([] if loose else ["--strict"]), "check.txt"),
         ("solve", [sys.executable, "-m", "lvsolver.run", "--method", "gls", "--tau", "pdf", "--include-fs",
                    "--mesh", str(mesh), "--out", str(d), "--no-vtk", "--save-fields",
                    "--dt", f"{period / steps:.10g}", "--steps", str(steps), *solver_args(row), *extra], "log.txt"),
@@ -81,6 +81,8 @@ def main(argv=None):
     ap.add_argument("--steps", type=int, default=200, help="time steps per cycle")
     ap.add_argument("--mesh-root", type=Path, default=ROOT / "mesh")
     ap.add_argument("--extra", default="", help="extra lvsolver.run options (quoted)")
+    ap.add_argument("--loose-check", action="store_true",
+                    help="run check_mesh without --strict (log only; do not abort on the fibre heuristic)")
     a = ap.parse_args(argv)
     rows = list(csv.DictReader(a.params.open()))
     missing = [k for k in ["case", "geom"] + NAMES if k not in rows[0]]
@@ -94,7 +96,8 @@ def main(argv=None):
     if not status.exists():
         status.write_text("case\tresult\tseconds\n")
     with ThreadPoolExecutor(a.jobs) as pool:
-        res = list(pool.map(lambda r: one(r, out, a.mesh_root.resolve(), a.steps, a.extra.split(), status), rows))
+        res = list(pool.map(lambda r: one(r, out, a.mesh_root.resolve(), a.steps, a.extra.split(), status,
+                                          loose=a.loose_check), rows))
     counts = {k: res.count(k) for k in sorted(set(res))}
     print(f"done: {counts}")
     return 0 if all(r in ("ok", "skip") for r in res) else 1

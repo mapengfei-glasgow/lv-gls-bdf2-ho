@@ -48,7 +48,9 @@ def load_xdmf_mesh(comm, mesh_dir, scale):
     mesh.topology.create_connectivity(mesh.topology.dim, 0)
     c2v = mesh.topology.connectivity(fdim, 0).array.reshape(-1, 3)
     c3v = mesh.topology.connectivity(mesh.topology.dim, 0).array.reshape(-1, 4)
-    cell_input_globals = mesh.geometry.input_global_indices[mesh.geometry.dofmaps[0]]
+    # DOLFINx >= 0.11 exposes a list `dofmaps` (one per cell type); older versions expose `dofmap`.
+    dmaps = getattr(mesh.geometry, "dofmaps", None) or [mesh.geometry.dofmap]
+    cell_input_globals = mesh.geometry.input_global_indices[dmaps[0]]
 
     num_vertices = mesh.topology.index_map(0).size_local + mesh.topology.index_map(0).num_ghosts
     vertex_to_input_global = np.full(num_vertices, -1, dtype=np.int64)
