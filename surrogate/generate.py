@@ -55,7 +55,7 @@ def one(row, out, mesh_root, steps, extra, status, loose=False):
 
     period = float(row["period_s"])
     steps_ = [
-        ("fibres", [sys.executable, "tools/rule_based_fibers.py", str(find_mesh(mesh_root, row["geom"])), str(mesh)], "fibres.log"),
+        ("fibres", [sys.executable, "geometry/fibers.py", str(find_mesh(mesh_root, row["geom"])), str(mesh)], "fibres.log"),
         ("check", [sys.executable, "tools/check_mesh.py", str(mesh)] + ([] if loose else ["--strict"]), "check.txt"),
         ("solve", [sys.executable, "-m", "lvsolver.run", "--method", "gls", "--tau", "pdf", "--include-fs",
                    "--mesh", str(mesh), "--out", str(d), "--no-vtk", "--save-fields",

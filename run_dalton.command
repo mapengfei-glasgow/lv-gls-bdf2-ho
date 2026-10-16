@@ -15,7 +15,7 @@ export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1
 [ -f "$SRC/dalton_lv_mesh.xdmf" ] || bash mesh/download_dalton.command "$G" || exit 1
 # The dataset's fibre field does not match its cells (tools/check_mesh.py), so rule-based fibres
 # (+60 deg endo -> -60 deg epi, same convention as the idealized meshes) are generated first.
-[ -f "$MESH/dalton_lv_mesh.xdmf" ] || python tools/rule_based_fibers.py "$SRC" "$MESH" || exit 1
+[ -f "$MESH/dalton_lv_mesh.xdmf" ] || python geometry/fibers.py "$SRC" "$MESH" || exit 1
 # Fibre geometry must be plausible (tangent to the wall, helix rotation endo->epi); FORCE=1 overrides.
 if ! python tools/check_mesh.py "$MESH" --strict; then
   if [ "${FORCE:-0}" != "1" ]; then

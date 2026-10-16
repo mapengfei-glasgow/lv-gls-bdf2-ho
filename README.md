@@ -119,7 +119,7 @@ paper/sec46_lv/        论文 4.6 节：tex、图、数据、run_paper_case.comm
 
 ## 代理模型（surrogate/）
 
-训练数据由本文 GLS 求解器生成（`lvsolver.run --no-vtk --save-fields`），网格来自 HF Dalton 数据集，纤维用 `tools/rule_based_fibers.py` 生成（+60°/−60°），不使用数据集自带纤维。
+训练数据由本文 GLS 求解器生成（`lvsolver.run --no-vtk --save-fields`），网格来自 HF Dalton 数据集，纤维用 `geometry/fibers.py` 生成（+60°/−60°），不使用数据集自带纤维。
 除几何外还变化 8 个参数：$a,b,a_f,b_f$（名义值 ×[2/3, 1.5]，对数均匀），$T_a$ 幅值、$p_{\mathrm{ED}}$、$p$ 收缩幅值、周期 $T$（范围见 `surrogate/params.py`）。
 
 ```bash

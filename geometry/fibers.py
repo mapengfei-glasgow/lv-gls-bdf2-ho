@@ -1,6 +1,6 @@
 """Rule-based myocardial fibres for an LV mesh in the lvsolver XDMF/HDF5 layout.
 
-  python tools/rule_based_fibers.py <src_mesh_dir> <dst_mesh_dir> [--endo 60 --epi -60]
+  python geometry/fibers.py <src_mesh_dir> <dst_mesh_dir> [--endo 60 --epi -60]
 
 Copies the mesh and replaces Mesh/fibers, Mesh/sheets, Mesh/normals (per cell):
   1. transmural coordinate phi: P1 Laplace problem, phi = 0 on the endocardium (tag 6),

@@ -65,7 +65,7 @@ precision), and the apex points toward negative x. The transformation from raw
 coordinates is `(raw_z - mean_base_z, raw_y, -raw_x)`. Boundary tags are
 5=base, 6=endocardium, 7=epicardium.
 
-`fibers.py` is a bundled copy of `tools/rule_based_fibers.py`: it solves a P1
+`fibers.py` is the shared rule-based fibre generator: it solves a P1
 Laplace transmural problem and rebuilds fibres (+60 degrees endocardium,
 -60 degrees epicardium), sheets, and normals for each generated shape.
 The problematic original Dalton fibre arrays are not reused.

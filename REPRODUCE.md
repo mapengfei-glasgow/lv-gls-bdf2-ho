@@ -62,7 +62,7 @@ python tools/compare_runs.py results --ref-git HEAD      # 默认容差 1e-10
 相邻单元的纤维一致性（中位数 0.37）甚至低于随机单元对（0.54）。尝试过按顶点编号重排单元、48 种坐标轴置换加符号，都不能修复。
 这说明纤维数组与单元的对应关系（或所用的坐标系）在生成数据集时出了错。
 
-因此计算时改用规则纤维：`python tools/rule_based_fibers.py mesh/dalton_geom_0000 mesh/dalton_geom_0000_rb`
+因此计算时改用规则纤维：`python geometry/fibers.py mesh/dalton_geom_0000 mesh/dalton_geom_0000_rb`
 （P1 Laplace 透壁坐标，螺旋角内膜 +60° → 外膜 −60°，sheet 取透壁方向，约定与理想网格相同，约 2 秒）。
 生成的网格通过检查：切平面内 100%，螺旋角 +44° → −46°，相邻一致性 0.99。它属于生成网格，不纳入 git。
 

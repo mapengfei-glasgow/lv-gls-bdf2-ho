@@ -32,7 +32,7 @@ one() {
   rm -rf "$d"; mkdir -p "$d"
   local mesh="$d/mesh_rb"
   log() { printf "%s\t%s\t%s\t%s\n" "$g" "$1" "$((SECONDS-t0))" "$2" >> "$OUT/status.tsv"; }
-  if ! python "$ROOT/tools/rule_based_fibers.py" "$DATA/geom_$g" "$mesh" > "$d/fibres.log" 2>&1; then
+  if ! python "$ROOT/geometry/fibers.py" "$DATA/geom_$g" "$mesh" > "$d/fibres.log" 2>&1; then
     log fibres_failed "see fibres.log"; return 0; fi
   if ! python "$ROOT/tools/check_mesh.py" "$mesh" --strict > "$d/check.txt" 2>&1; then
     log check_failed "see check.txt"; return 0; fi
