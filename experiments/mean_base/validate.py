@@ -8,9 +8,15 @@ import h5py
 import numpy as np
 
 
-def validate(data, steps=200):
+def validate(data, steps=200, names=None):
     data = Path(data)
-    rows = list(csv.DictReader((data / 'params.csv').open()))
+    with (data / 'params.csv').open() as manifest:
+        rows = list(csv.DictReader(manifest))
+    if names is not None:
+        selected = set(names)
+        rows = [row for row in rows if row['case'] in selected]
+        if len(rows) != len(selected):
+            raise SystemExit('validation requested unknown case names')
     with h5py.File(data / '_geometry/dalton_geom_mean/dalton_lv_mesh.h5') as f:
         coords = f['Mesh/mesh/geometry'][:] * .01
         cells = f['Mesh/mesh/topology'][:]

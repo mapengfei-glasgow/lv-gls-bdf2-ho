@@ -42,7 +42,8 @@ class Case:
 class LVDataset:
     def __init__(self, root):
         self.root = Path(root).resolve()
-        rows = list(csv.DictReader((self.root / "params.csv").open()))
+        with (self.root / "params.csv").open() as manifest:
+            rows = list(csv.DictReader(manifest))
         # optional PCA shape coefficients per geometry (z = score / sigma, PCs 0-15)
         self.coeff_map, self.coeff_dim = {}, 0
         cf = self.root / "shape_coeffs.csv"

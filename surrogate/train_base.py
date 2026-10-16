@@ -22,6 +22,23 @@ NOISE_GAMMA = 0.1
 AUG_KW = dict(root_leaf_factor=4, min_root_nodes=6, n_nearest_nbrs=3)
 
 
+def add_completed_cases(ds, train, validate_mean=False):
+    """Append completed training cases; retain the existing sample order and splits."""
+    fresh = LVDataset(ds.root)
+    np.testing.assert_array_equal(fresh.cells, ds.cells)
+    np.testing.assert_array_equal(fresh.node_tags, ds.node_tags)
+    known = {c.name for c in train}
+    added = [c for c in fresh.split("train") if c.name not in known]
+    if added and validate_mean:
+        from experiments.mean_base.validate import validate
+        validate(ds.root, names=[c.name for c in added])
+    for c in added:
+        np.testing.assert_allclose(c.coords, train[0].coords, atol=1e-12, rtol=0)
+        if not np.isfinite(c.u).all():
+            raise ValueError(f"{c.name}: nonfinite displacements")
+    return train + added, added
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("data", type=Path)
@@ -35,6 +52,9 @@ def main():
     ap.add_argument("--eval-every", type=int, default=1000)
     ap.add_argument("--eval-cases", type=int, default=2)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--refresh-every", type=int, default=0,
+                    help="admit newly completed training cases every N iterations (0: fixed dataset)")
+    ap.add_argument("--validate-mean", action="store_true", help="validate admitted simulations against the mean campaign design")
     ap.add_argument("--resume", type=Path, default=None, help="resume this training run, including optimiser and normalisers")
     ap.add_argument("--ema", action="store_true", help="track + evaluate/save EMA weights")
     ap.add_argument("--ema-decay", type=float, default=0.999)
@@ -45,6 +65,8 @@ def main():
         ap.error("iteration, batch, evaluation, and accumulation counts must be positive")
     if a.eval_every % a.accum or a.iters % a.accum:
         ap.error("eval-every and iters must be divisible by accum")
+    if a.refresh_every < 0:
+        ap.error("refresh-every must be nonnegative")
     if a.out.exists() and any(a.out.iterdir()) and not a.resume:
         ap.error("output directory is not empty; use --resume or a new --out")
     torch.manual_seed(a.seed)
@@ -58,12 +80,18 @@ def main():
         raise SystemExit("both train and validation cases are required")
     resume = torch.load(a.resume, map_location="cpu", weights_only=False) if a.resume else None
     if resume:
-        for key in ("iters", "batch", "lr", "latent", "mp_steps", "noise_pos", "accum", "ema", "ema_decay", "seed", "eval_cases", "eval_every"):
-            if resume["args"][key] != getattr(a, key):
+        for key in ("iters", "batch", "lr", "latent", "mp_steps", "noise_pos", "accum", "ema", "ema_decay", "seed", "eval_cases", "eval_every", "refresh_every", "validate_mean"):
+            if resume["args"].get(key, ap.get_default(key)) != getattr(a, key):
                 raise SystemExit(f"resume requires the same --{key.replace('_', '-')}")
         digest = hashlib.sha256((ds.root / "params.csv").read_bytes()).hexdigest()
         if resume.get("params_sha256") != digest or Path(resume["data"]).resolve() != ds.root:
             raise SystemExit("resume requires the original dataset and parameter manifest")
+        by_name = {c.name: c for c in ds.cases}
+        val = [by_name[name] for name in resume.get("val_cases", [c.name for c in val])]
+        train = [by_name[name] for name in resume.get("train_cases", [c.name for c in train])]
+    if a.validate_mean:
+        from experiments.mean_base.validate import validate
+        validate(ds.root, names=[c.name for c in train + val])
     node_dim = NODE_IN
     ref = np.mean([c.coords for c in train], axis=0)
     aug = resume["aug"] if resume else build_augmented_graph(ref, ds.edges, **AUG_KW)
@@ -165,6 +193,12 @@ def main():
     window = 0
     run_kin = 0.0
     for it in range(start, a.iters + 1):
+        if a.refresh_every and (it == start or (it - 1) % a.refresh_every == 0):
+            train, added = add_completed_cases(ds, train, a.validate_mean)
+            if added:
+                samples = [(i, n) for i, c in enumerate(train) for n in range(c.steps)]
+                print(f"[data] it {it}: added {len(added)} training cases; total={len(train)}; "
+                      f"validation remains {len(val)} fixed cases", flush=True)
         window += 1
         model.train()
         pick = rng.integers(len(samples), size=a.batch)
@@ -202,6 +236,8 @@ def main():
                         if k in ema:
                             ema[k].mul_(a.ema_decay).add_(v, alpha=1.0 - a.ema_decay)
         run_loss += loss.item()
+        if it % 100 == 0:
+            print(f"[train] it {it} loss={run_loss / window:.4f} train_cases={len(train)}", flush=True)
         if it % a.eval_every == 0 or it == a.iters:
             raw_sd = None
             if ema is not None:
@@ -227,6 +263,7 @@ def main():
                       torch_rng=torch.get_rng_state(),
                       cuda_rng=torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
                       params_sha256=hashlib.sha256((ds.root / "params.csv").read_bytes()).hexdigest(),
+                      train_cases=[c.name for c in train], val_cases=[c.name for c in val],
                       norms=[n.state() for n in (xn, en, yn)],
                       aug={k: aug[k] for k in ("aug_coords", "topology", "parents", "counts",
                                                "n_real", "n_total", "n_edges")},

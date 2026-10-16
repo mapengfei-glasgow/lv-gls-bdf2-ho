@@ -20,13 +20,15 @@ class BaseResumeTest(unittest.TestCase):
             data = root / 'data'
             data.mkdir()
             rows = []
-            for i, split in enumerate(('train', 'val', 'test')):
-                case = f'c{i}'
+            specs = [('lateval', 'val', 'running'), ('c0', 'train', 'completed'),
+                     ('c1', 'val', 'completed'), ('c2', 'test', 'completed'),
+                     ('newtrain', 'train', 'running')]
+            for case, split, status in specs:
                 rows.append([case, 'mean', split, *[v[0] for v in SPACE.values()]])
                 d = data / case
                 fields = d / 'fields'
                 fields.mkdir(parents=True)
-                (d / 'metadata.json').write_text(json.dumps({'status': 'completed'}))
+                (d / 'metadata.json').write_text(json.dumps({'status': status}))
                 coords = np.array([[0, 0, 0], [-.01, 0, 0], [0, .01, 0], [0, 0, .01]])
                 u = np.arange(4)[:, None, None] ** 2 * np.ones((4, 4, 3)) * 1e-6
                 arrays = dict(coords=coords, cells=np.array([[0, 2, 1, 3]]),
@@ -42,16 +44,21 @@ class BaseResumeTest(unittest.TestCase):
             env = dict(os.environ, CUDA_VISIBLE_DEVICES='', OMP_NUM_THREADS='1',
                        OPENBLAS_NUM_THREADS='1')
             args = [str(data), '--iters', '4', '--batch', '1', '--latent', '8',
-                    '--mp-steps', '1', '--eval-every', '2', '--eval-cases', '1', '--ema']
+                    '--mp-steps', '1', '--eval-every', '2', '--eval-cases', '1', '--ema',
+                    '--refresh-every', '1']
             snapshot = root / 'snapshot.pt'
             # Capture iteration 2 without changing the four-step cosine schedule.
             code = '''
-import torch, runpy, sys
+import torch, runpy, sys, json
+from pathlib import Path
 original = torch.save
 snapshot = sys.argv.pop(1)
+data = Path(sys.argv[1])
 def save(obj, path):
     if obj.get('iter') == 2:
         original(obj, snapshot)
+        for name in ('newtrain', 'lateval'):
+            (data / name / 'metadata.json').write_text(json.dumps({'status': 'completed'}))
     original(obj, path)
 torch.save = save
 runpy.run_module('surrogate.train_base', run_name='__main__')
@@ -63,6 +70,10 @@ runpy.run_module('surrogate.train_base', run_name='__main__')
                            env=env, check=True)
             full = torch.load(root / 'full/last.pt', weights_only=False)
             resumed = torch.load(root / 'resumed/last.pt', weights_only=False)
+            self.assertEqual(full['train_cases'], ['c0', 'newtrain'])
+            self.assertEqual(full['val_cases'], ['c1'])
+            self.assertEqual(resumed['train_cases'], full['train_cases'])
+            self.assertEqual(resumed['val_cases'], full['val_cases'])
             for key in ('model', 'raw_model', 'ema'):
                 for name in full[key]:
                     torch.testing.assert_close(full[key][name], resumed[key][name],

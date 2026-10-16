@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Wait for all workers, validate the full dataset, then train on euclid-17.
+# Train incrementally while workers generate data; validate the full campaign before final evaluation.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$ROOT"
@@ -11,6 +11,12 @@ CONTROL="$DATA/_campaign"
 WORKERS=(euclid-17 euclid-01 euclid-10 euclid-21 euclid-23)
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
+bash experiments/mean_base/wait_for_gpu.sh
+resume=()
+if [ -f "$RUN/last.pt" ]; then resume=(--resume "$RUN/last.pt"); fi
+"$TRAIN_PY" -m surrogate.train_base "$DATA" --out "$RUN" \
+    --iters 120000 --batch 4 --lr 1e-3 --noise-pos 5e-5 \
+    --eval-every 1000 --eval-cases 10 --refresh-every 500 --validate-mean "${resume[@]}"
 while true; do
     ready=0
     for worker in "${WORKERS[@]}"; do
@@ -25,12 +31,6 @@ while true; do
     sleep 60
 done
 "$SOLVER_PY" experiments/mean_base/validate.py "$DATA"
-bash experiments/mean_base/wait_for_gpu.sh
-resume=()
-if [ -f "$RUN/last.pt" ]; then resume=(--resume "$RUN/last.pt"); fi
-"$TRAIN_PY" -m surrogate.train_base "$DATA" --out "$RUN" \
-    --iters 120000 --batch 4 --lr 1e-3 --noise-pos 5e-5 \
-    --eval-every 2500 --eval-cases 10 "${resume[@]}"
 "$TRAIN_PY" -m surrogate.evaluate "$RUN" --data "$DATA" --split val --ckpt "$RUN/best.pt"
 "$TRAIN_PY" -m surrogate.evaluate "$RUN" --data "$DATA" --split test --ckpt "$RUN/best.pt"
 echo "$(date -Is): mean-base training and evaluation complete"

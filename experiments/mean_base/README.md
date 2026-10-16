@@ -20,8 +20,13 @@ self-contained `geometry/` generator.
 - Reference training recipe: latent 128, 10 message-passing steps, batch 4,
   Adam, 120,000 iterations, cosine learning rate 1e-3 to 1e-6, position noise
   5e-5 m with corrected targets, no pushforward loss, running normalisers.
-- Checkpoint selection uses the first ten validation cases. Final evaluation
+- Checkpoint selection uses ten completed validation cases selected at startup
+  and kept fixed across data refreshes and resumes. Final evaluation
   uses all validation and test cases with the selected `best.pt`.
+
+With `--refresh-every 500 --validate-mean`, the trainer starts on completed
+samples and admits new training cases while simulations continue. Incomplete
+cases are excluded. Validation/test samples never enter the training pool.
 
 The new trainer, `python -m surrogate.train_base`, saves optimizer/scheduler,
 normalisers, graph, raw weights, optional EMA weights, and RNG states. `--resume`
@@ -91,8 +96,13 @@ The source lives in the shared home directory at
 Euclid-17 is explicitly permitted by the user; the other four machines are
 public in `experiments/euclids.json`. All write disjoint case directories in
 the same shared dataset. Each worker has a separate status TSV and log.
-`worker.sh HOST JOBS SHARD...` runs one allocation; `finish.sh` waits for all
-five workers, validates the complete data, and trains on euclid-17 GPU 0.
+`worker.sh HOST JOBS SHARD...` runs one allocation; `finish.sh` starts training on euclid-17 GPU 1 using the completed samples.
+It checks for newly completed training cases every 500 iterations, validates
+them before admission, and adds them without resetting the model, optimizer,
+normalisers, or learning-rate schedule. Checkpoints record the admitted training
+cases and fixed validation cases. Training logs progress every 100 iterations
+and evaluates/saves every 1,000 iterations. After training and all generation
+workers finish, it validates the full dataset and evaluates all validation/test cases.
 Training waits until the selected GPU has no other compute processes. A full-size
 forward/backward preflight passed on the A6000 at batch 4, with about 31 GiB peak
 reserved GPU memory.
