@@ -1,0 +1,362 @@
+{
+  "source": "University of Glasgow, School of Mathematics and Statistics | IT - Linux Workstations",
+  "location": "Room 417, Boyd Orr Building",
+  "total_workstations": 37,
+  "naming_convention": "euclid-nn.maths (often referred to as 'The Euclids')",
+  "categories": {
+    "public": [
+      {
+        "name": "euclid-01.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu Server 22.04",
+          "Dell Precision Rack 7920",
+          "Single Intel Xeon Gold 6240R @ 2.40GHz, 24 cores",
+          "128GB RAM",
+          "GPU: Nvidia Quadro RTX6000, 20GB",
+          "installed 08/03/2022 / warranty 18/02/2027"
+        ]
+      },
+      {
+        "name": "euclid-02.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu 22.04.3",
+          "Dell R7960",
+          "Dual Intel Xeon Silver 4509Y, 8 cores, 16 threads",
+          "32GB DDR5 ECC RAM",
+          "Dual Nvidia RTX 4000 Ada, 20GB GDDR6",
+          "installed 11/07/2025 / warranty 25/06/2030"
+        ]
+      },
+      {
+        "name": "euclid-04.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu 22.04.3",
+          "Dell R7920",
+          "Dual Intel Xeon Platinum 8260L, 48 cores, 96 threads",
+          "256GB DDR4 ECC RAM",
+          "GPU: Integrated Matrox G200eW3",
+          "installed 8/2021 / warranty 07/2026"
+        ]
+      },
+      {
+        "name": "euclid-05.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 22.04",
+          "Dell Precision R7920",
+          "Dual Intel Xeon Gold 6140 @ 2.30GHz, 72 cores",
+          "128GB RAM",
+          "GPU: Integrated Matrox G200eW3",
+          "installed 21/06/2019 / warranty 21/06/2023"
+        ]
+      },
+      {
+        "name": "euclid-10.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu 24.04 LTS",
+          "Precision 7960 Rack",
+          "Dual Intel Xeon Silver 4509Y, 8 cores, 16 threads",
+          "32GB DDR5 ECC RAM",
+          "Dual Nvidia RTX 4000 Ada, 20GB GDDR6",
+          "installed 2/08/2025 / warranty 13/06/2030"
+        ]
+      },
+      {
+        "name": "euclid-11.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 22.04.3",
+          "Dell R7910",
+          "Dual 8-core Intel Xeon E5-2640 v3 @ 2.60GHz, 32 cores",
+          "64GB DDR4 1866 Memory",
+          "GPU: Matrox G200eR2",
+          "installed 11/07/2016 / warranty 25/06/2021"
+        ]
+      },
+      {
+        "name": "euclid-18.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 24.04",
+          "Dell PowerEdge R840",
+          "Quad 28-core Intel Xeon Platinum 8276L @ 2.20GHz, 224 logical cores",
+          "1TB RAM",
+          "GPU: Integrated Matrox G200eW3",
+          "installed 13/01/2021 / warranty 1/01/2026"
+        ]
+      },
+      {
+        "name": "euclid-19.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 24.04",
+          "Dell PowerEdge R840",
+          "Quad 28-core Intel Xeon Platinum 8276L @ 2.20GHz, 224 logical cores",
+          "1TB RAM",
+          "GPU: Integrated Matrox G200eW3",
+          "installed 13/01/2021 / warranty 1/01/2026"
+        ]
+      },
+      {
+        "name": "euclid-21.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu 22.04.03",
+          "Dell Precision R7960",
+          "Dual Intel Xeon Silver 4410Y, 12 cores, 24 threads",
+          "64GB DDR5 ECC RAM",
+          "installed 5/07/2024 / warranty 1/07/2029"
+        ]
+      },
+      {
+        "name": "euclid-23.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu 22.04.3 LTS",
+          "Dell Precision R7960",
+          "Dual Intel Xeon Gold 6444Y, 16 cores, 32 threads",
+          "128GB DDR5 ECC RAM",
+          "GPU: Dual NVIDIA RTX A4500, 20GB GDDR6",
+          "installed 10/07/2024 / warranty 08/07/2029"
+        ]
+      },
+      {
+        "name": "euclid-25.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 22.04.3",
+          "Dell Precision R7920",
+          "Dual Intel Xeon Gold 6238R @ 2.20GHz, 56 cores",
+          "128GB RAM",
+          "GPU: Dual Nvidia A6000, 48GB GDDR6 each",
+          "Has Lambda Stack installed",
+          "installed 15/06/2023 / warranty 12/06/2028"
+        ]
+      },
+      {
+        "name": "euclid-26.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 22.04.3",
+          "Dell PowerEdge R660xs",
+          "Dual Intel Xeon Gold 5418Y, 24 cores, 48 threads",
+          "128GB RDIMM 4800MT/s",
+          "installed 19/07/2024 / warranty 19/07/2029"
+        ]
+      },
+      {
+        "name": "euclid-27.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 22.04",
+          "Dell Precision R7920",
+          "Dual Xeon Silver 4210R, 10C",
+          "384GB DDR4 ECC RAM",
+          "GPU: Nvidia RTX A6000, 48GB GDDR6",
+          "installed 01/03/2023 / warranty 15/02/2028"
+        ]
+      },
+      {
+        "name": "euclid-28.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 22.04",
+          "Dell Precision R7920",
+          "Dual Xeon Silver 4210R, 10C",
+          "384GB DDR4 ECC RAM",
+          "GPU: Nvidia RTX A6000, 48GB GDDR6",
+          "installed 01/03/2023 / warranty 15/02/2028"
+        ]
+      },
+      {
+        "name": "euclid-29.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 22.04",
+          "Dell Precision R7920",
+          "Dual Xeon Gold 6254, 18C",
+          "384GB DDR4 ECC RAM",
+          "GPU: Nvidia RTX A6000, 48GB GDDR6",
+          "2TB local space for temp use",
+          "installed 01/03/2023 / warranty 15/02/2028"
+        ]
+      },
+      {
+        "name": "euclid-30.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu LTS 22.04",
+          "Dell Precision R7920",
+          "Dual Xeon Gold 6254, 18C",
+          "384GB DDR4 ECC RAM",
+          "GPU: Nvidia RTX A6000, 48GB GDDR6",
+          "2TB local space for temp use",
+          "installed 01/03/2023 / warranty 15/02/2028"
+        ]
+      },
+      {
+        "name": "euclid-34.maths",
+        "public": true,
+        "owner_or_restriction": null,
+        "notes": [
+          "Ubuntu 22.04.3 LTS",
+          "Dell Precision R7910",
+          "Dual 6-core Intel Xeon E5-2609 v3 @ 1.90GHz",
+          "32GB RAM",
+          "GPU: Matrox G200eR2",
+          "installed 29/04/2015 / warranty 26/04/2020"
+        ]
+      }
+    ],
+    "restricted_or_private": [
+      {
+        "name": "euclid-03.maths",
+        "public": false,
+        "owner_or_restriction": "Belongs to Dirk Husmeier; obtain permission before use"
+      },
+      {
+        "name": "euclid-06.maths",
+        "public": false,
+        "owner_or_restriction": "Belongs to SoftMech research group; obtain permission before use"
+      },
+      {
+        "name": "euclid-07.maths",
+        "public": false,
+        "owner_or_restriction": "Intended for Surajit Ray's group; give priority to those users if busy"
+      },
+      {
+        "name": "euclid-08.maths",
+        "public": false,
+        "owner_or_restriction": "Belongs to SoftMech / Dirk Husmeier's group; obtain permission before use (CUDA use)"
+      },
+      {
+        "name": "euclid-09.maths",
+        "public": false,
+        "owner_or_restriction": "Belongs to Katarzyna Kowal; obtain permission before use"
+      },
+      {
+        "name": "euclid-12.maths",
+        "public": false,
+        "owner_or_restriction": "Belongs to Xiaoyu Luo; obtain permission before use"
+      },
+      {
+        "name": "euclid-17.maths",
+        "public": false,
+        "owner_or_restriction": "Belongs to Dirk Husmeier; obtain permission before use"
+      },
+      {
+        "name": "euclid-22.maths",
+        "public": false,
+        "owner_or_restriction": "Belongs to Anastasia Ignatieva; obtain permission before use (login restricted)"
+      },
+      {
+        "name": "euclid-24.maths",
+        "public": false,
+        "owner_or_restriction": "Belongs to Nick Hill; obtain permission before use"
+      },
+      {
+        "name": "euclid-32.maths",
+        "public": false,
+        "owner_or_restriction": "Belongs to Radostin Simitev; obtain permission before use"
+      },
+      {
+        "name": "euclid-35.maths",
+        "public": false,
+        "owner_or_restriction": "Specifically for CUDA use; obtain permission from Colin Torney before use"
+      },
+      {
+        "name": "euclid-36.maths",
+        "public": false,
+        "owner_or_restriction": "Specifically for MAGMA use; obtain permission from Michael Wemyss before use"
+      },
+      {
+        "name": "euclid-37.maths",
+        "public": false,
+        "owner_or_restriction": "Restricted to SOFTMECH group"
+      }
+    ],
+    "slurm_compute_nodes": [
+      {
+        "name": "euclid-13.maths",
+        "public": false,
+        "type": "slurm_compute_node",
+        "note": "Do not run jobs directly; use SLURM queuing system from slurmctl.maths.gla.ac.uk"
+      },
+      {
+        "name": "euclid-14.maths",
+        "public": false,
+        "type": "slurm_compute_node",
+        "note": "Do not run jobs directly; use SLURM queuing system from slurmctl.maths.gla.ac.uk"
+      },
+      {
+        "name": "euclid-15.maths",
+        "public": false,
+        "type": "slurm_compute_node",
+        "note": "Do not run jobs directly; use SLURM queuing system from slurmctl.maths.gla.ac.uk"
+      },
+      {
+        "name": "euclid-16.maths",
+        "public": false,
+        "type": "slurm_compute_node",
+        "note": "Do not run jobs directly; use SLURM queuing system from slurmctl.maths.gla.ac.uk"
+      },
+      {
+        "name": "euclid-20.maths",
+        "public": false,
+        "type": "slurm_compute_node",
+        "note": "Do not run jobs directly; use SLURM queuing system from slurmctl.maths.gla.ac.uk"
+      },
+      {
+        "name": "euclid-31.maths",
+        "public": false,
+        "type": "slurm_compute_node",
+        "note": "Do not run jobs directly; use SLURM queuing system from slurmctl.maths.gla.ac.uk"
+      },
+      {
+        "name": "euclid-33.maths",
+        "public": false,
+        "type": "slurm_compute_node",
+        "note": "Do not run jobs directly; use SLURM queuing system from slurmctl.maths.gla.ac.uk"
+      }
+    ]
+  },
+  "exceptions": {
+    "centos_7_5_not_running": ["euclid-01", "euclid-04", "euclid-07", "euclid-25", "euclid-26"],
+    "gpu_cards_nvidia_cuda": [
+      "euclid-01",
+      "euclid-07 (S Ray)",
+      "euclid-08 (D Husmeier)",
+      "euclid-17",
+      "euclid-20 (Slurm node)",
+      "euclid-23",
+      "euclid-24 (Nick Hill)",
+      "euclid-25",
+      "euclid-27",
+      "euclid-28",
+      "euclid-29",
+      "euclid-30",
+      "euclid-33",
+      "euclid-35 (C Torney)"
+    ]
+  }
+}

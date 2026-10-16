@@ -3,6 +3,10 @@
 Self-contained PCA geometry generation: see [geometry/README.md](geometry/README.md).
 The PCA basis, mesh topology, and generator are bundled; generated geometries are not tracked.
 
+The first-stage emulator is being retrained on the PCA mean geometry. See
+[experiments/mean_base/README.md](experiments/mean_base/README.md) for the data design,
+distributed generation, and resumable training workflow.
+
 理想化左心室（`mesh/lv_aha17_v2_plain`，972 个 P1 四面体，cm → m）在给定载荷下的一个心动周期
 （$\Delta t = 0.005$ s，200 步）。三种体积约束离散共用同一个模型，差别只在单元、未知量和不可压缩处理。
 

@@ -79,12 +79,22 @@ def main(argv=None):
     ap.add_argument("out", type=Path)
     ap.add_argument("--jobs", type=int, default=1, help="cases in parallel (1 MPI rank, 1 thread each)")
     ap.add_argument("--steps", type=int, default=200, help="time steps per cycle")
+    ap.add_argument("--shards", type=int, default=1, help="number of disjoint generation shards")
+    ap.add_argument("--shard", type=int, nargs="+", default=[0], help="zero-based shard indices; keep the full params.csv")
+    ap.add_argument("--status-file", default="status.tsv", help="status filename under OUT (use one per worker)")
     ap.add_argument("--mesh-root", type=Path, default=ROOT / "mesh")
     ap.add_argument("--extra", default="", help="extra lvsolver.run options (quoted)")
     ap.add_argument("--loose-check", action="store_true",
                     help="run check_mesh without --strict (log only; do not abort on the fibre heuristic)")
     a = ap.parse_args(argv)
-    rows = list(csv.DictReader(a.params.open()))
+    if a.shards < 1 or any(not 0 <= s < a.shards for s in a.shard) or len(set(a.shard)) != len(a.shard):
+        ap.error("require shards >= 1 and unique shard indices in [0, shards)")
+    if Path(a.status_file).name != a.status_file:
+        ap.error("status-file must be a filename, not a path")
+    with a.params.open() as source:
+        rows = list(csv.DictReader(source))
+    if not rows:
+        raise SystemExit(f"{a.params}: empty parameter manifest")
     missing = [k for k in ["case", "geom"] + NAMES if k not in rows[0]]
     if missing:
         raise SystemExit(f"{a.params}: missing columns {missing}")
@@ -92,7 +102,9 @@ def main(argv=None):
     out.mkdir(parents=True, exist_ok=True)
     if a.params.resolve() != (out / "params.csv"):
         shutil.copy(a.params, out / "params.csv")
-    status = out / "status.tsv"
+    selected = set(a.shard)
+    rows = [row for i, row in enumerate(rows) if i % a.shards in selected]
+    status = out / a.status_file
     if not status.exists():
         status.write_text("case\tresult\tseconds\n")
     with ThreadPoolExecutor(a.jobs) as pool:
