@@ -1,0 +1,5 @@
+# Generated meshes and coefficients belong outside the source assets.
+generated/
+*.h5
+*.xdmf
+*.npy

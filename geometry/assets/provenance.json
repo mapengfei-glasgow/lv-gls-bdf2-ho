@@ -1,0 +1,15 @@
+{
+  "source": "Dalton LV family; existing 2967-geometry PCA fit and geom_0000 converted topology",
+  "pca_fit_script": "_work/pca_dalton/fit_pca_dalton.py (historical local source)",
+  "pca_source_sha256": "8b4fe548759d946da25a0d28642295959b16b5a4f9b4d287fc35630d553d68d5",
+  "n_modes": 40,
+  "n_raw_nodes": 6784,
+  "n_mesh_nodes": 11779,
+  "n_tetrahedra": 59940,
+  "sigma_ddof": 0,
+  "units": "cm",
+  "sha256": {
+    "topology.npz": "c0b3ab235abc18409e0f9384628eca4d8f62d54fd057fa9e97af53b7869f719a",
+    "pca_basis.npz": "7f3e9e9f29651eee1a5d81df1fe71c108f4905a57961d98d7b7c6f7f7168162e"
+  }
+}

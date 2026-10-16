@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="3.0" xmlns:xi="https://www.w3.org/2001/XInclude">
+  <Domain>
+    <Grid Name="mesh" GridType="Uniform">
+      <Topology TopologyType="Tetrahedron" NumberOfElements="{nt}" NodesPerElement="4">
+        <DataItem Dimensions="{nt} 4" NumberType="Int" Format="HDF">{h5}:/Mesh/mesh/topology</DataItem>
+      </Topology>
+      <Geometry GeometryType="XYZ">
+        <DataItem Dimensions="{nn} 3" Format="HDF">{h5}:/Mesh/mesh/geometry</DataItem>
+      </Geometry>
+      <Attribute Name="fibers" AttributeType="Vector" Center="Cell">
+        <DataItem Dimensions="{nt} 3" Format="HDF">{h5}:/Mesh/fibers</DataItem>
+      </Attribute>
+      <Attribute Name="sheets" AttributeType="Vector" Center="Cell">
+        <DataItem Dimensions="{nt} 3" Format="HDF">{h5}:/Mesh/sheets</DataItem>
+      </Attribute>
+      <Attribute Name="normals" AttributeType="Vector" Center="Cell">
+        <DataItem Dimensions="{nt} 3" Format="HDF">{h5}:/Mesh/normals</DataItem>
+      </Attribute>
+    </Grid>
+    <Grid Name="cell_tags" GridType="Uniform">
+      <xi:include xpointer="xpointer(/Xdmf/Domain/Grid/Geometry)" />
+      <Topology TopologyType="Tetrahedron" NumberOfElements="{nt}" NodesPerElement="4">
+        <DataItem Dimensions="{nt} 4" NumberType="Int" Format="HDF">{h5}:/MeshTags/cell_tags/topology</DataItem>
+      </Topology>
+      <Attribute Name="cell_tags" AttributeType="Scalar" Center="Cell">
+        <DataItem Dimensions="{nt} 1" Format="HDF">{h5}:/MeshTags/cell_tags/Values</DataItem>
+      </Attribute>
+    </Grid>
+    <Grid Name="facet_tags" GridType="Uniform">
+      <xi:include xpointer="xpointer(/Xdmf/Domain/Grid/Geometry)" />
+      <Topology TopologyType="Triangle" NumberOfElements="{nft}" NodesPerElement="3">
+        <DataItem Dimensions="{nft} 3" NumberType="Int" Format="HDF">{h5}:/MeshTags/facet_tags/topology</DataItem>
+      </Topology>
+      <Attribute Name="facet_tags" AttributeType="Scalar" Center="Cell">
+        <DataItem Dimensions="{nft} 1" Format="HDF">{h5}:/MeshTags/facet_tags/Values</DataItem>
+      </Attribute>
+    </Grid>
+  </Domain>
+</Xdmf>
