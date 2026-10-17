@@ -1,0 +1,9 @@
+{
+  "shards": 5,
+  "workers": [
+    {"host": "euclid-01", "jobs": 12, "shards": [0, 1]},
+    {"host": "euclid-10", "jobs": 6, "shards": [2]},
+    {"host": "euclid-21", "jobs": 12, "shards": [3, 4]}
+  ],
+  "training": null
+}

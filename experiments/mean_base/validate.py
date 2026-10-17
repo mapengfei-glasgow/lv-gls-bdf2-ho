@@ -8,7 +8,7 @@ import h5py
 import numpy as np
 
 
-def validate(data, steps=200, names=None):
+def validate(data, steps=200, names=None, mesh_path=None):
     data = Path(data)
     with (data / 'params.csv').open() as manifest:
         rows = list(csv.DictReader(manifest))
@@ -17,7 +17,8 @@ def validate(data, steps=200, names=None):
         rows = [row for row in rows if row['case'] in selected]
         if len(rows) != len(selected):
             raise SystemExit('validation requested unknown case names')
-    with h5py.File(data / '_geometry/dalton_geom_mean/dalton_lv_mesh.h5') as f:
+    reference = Path(mesh_path) if mesh_path is not None else data / '_geometry/dalton_geom_mean/dalton_lv_mesh.h5'
+    with h5py.File(reference) as f:
         coords = f['Mesh/mesh/geometry'][:] * .01
         cells = f['Mesh/mesh/topology'][:]
     bad = []
@@ -42,7 +43,7 @@ def validate(data, steps=200, names=None):
             bad.append(f"{row['case']}: {type(e).__name__} {str(e)[:160]}")
     if bad:
         raise SystemExit(f'{len(bad)}/{len(rows)} cases missing or invalid:\n' + '\n'.join(bad[:20]))
-    print(f'Validated all {len(rows)} cases against PCA mean, parameters, topology, and {steps} steps')
+    print(f'Validated all {len(rows)} cases against reference geometry, parameters, topology, and {steps} steps')
 
 
 if __name__ == '__main__':
