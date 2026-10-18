@@ -42,3 +42,19 @@ case directories in the shared Euclid checkout. Per-worker logs and sentinels
 are stored under `_campaign/`. `finish.sh` waits and validates every simulation
 against its own reference shape. It creates `validated.done` when the data is
 ready. **None of these scripts starts training.**
+
+## Nonlinear retry provenance
+
+`retry.py` archives failed case directories under `_failed_attempts/` and never
+overwrites completed cases. The corrected `robust` strategy explicitly sets the
+effective SNES iteration cap after GLS initialisation (which otherwise overrides
+the global cap), then tries backtracking Newton and trust-region solves with
+previous/extrapolated initial guesses at the **same time step**. The PDE, material
+and load parameters, geometry, stabilisation, tolerances, and 200-step time grid
+are retained. Requested/effective settings and fallback events are recorded in
+the case metadata. This is numerical recovery, not a change to the sampled design.
+
+```bash
+python experiments/geometry_narrow/retry.py --data surrogate_data.geometry_narrow \
+    --case narrow_g01_p13 --strategy robust
+```

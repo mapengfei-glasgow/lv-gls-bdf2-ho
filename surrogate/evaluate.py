@@ -28,10 +28,10 @@ from .meshgraphnet import MeshGraphNet
 from .train import Surrogate, pick_device
 
 
-def load(run, data, device, ckpt=None):
+def load(run, data, device, ckpt=None, split=None):
     path = Path(ckpt) if ckpt else next(p for p in (run / "last.pt", run / "best.pt") if p.exists())
     ck = torch.load(path, map_location="cpu", weights_only=False)
-    ds = LVDataset(data or ck["data"])
+    ds = LVDataset(data or ck["data"], splits={split} if split else None)
     coeff_dim = int(ck["hparams"].get("coeff_dim", 0))
     if coeff_dim and ds.coeff_dim != coeff_dim:
         raise SystemExit(f"{ds.root}: checkpoint expects coeff_dim={coeff_dim}, "
