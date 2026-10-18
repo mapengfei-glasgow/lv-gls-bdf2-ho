@@ -58,3 +58,27 @@ the case metadata. This is numerical recovery, not a change to the sampled desig
 python experiments/geometry_narrow/retry.py --data surrogate_data.geometry_narrow \
     --case narrow_g01_p13 --strategy robust
 ```
+
+## Narrow-geometry training (authorised after data validation)
+
+`train.sh` starts a separate 120,000-iteration curriculum stage on all 384 narrow
+training cases, monitoring ten fixed validation cases every 1,000 iterations.
+It selects the lowest logged training loss **among saved base checkpoints**;
+unsaved historical weights cannot be recovered. The source snapshot is read only.
+The selected iteration, logged loss, SHA256 and complete data counts are recorded
+in `_campaign/training_initialization.json`.
+
+The stage preserves the pretrained network, hierarchical graph and normalisers.
+Each case supplies its own reference/deformed edge geometry; no new PCA input
+columns are added. Adam and the cosine schedule restart at a smaller learning rate
+(1e-4 down to 1e-6); position-noise and one-step loss settings match the base run.
+Output is exclusively `surrogate_runs/geometry_narrow_from_mean_loss/`.
+An existing output directory is rejected, rather than overwritten. The new run
+saves `best_loss.pt` by minimum 1,000-iteration mean training loss, `last.pt`, and
+`best.pt` by monitored validation rollout RMSE. Test cases are excluded from fitting
+and checkpoint selection. To resume a stopped stage, use `--resume` on its own
+`last.pt` with the original training arguments (omit `--init-from`).
+
+```bash
+TRAIN_PY="$HOME/.venvs/lv-mean-base/bin/python" bash experiments/geometry_narrow/train.sh
+```

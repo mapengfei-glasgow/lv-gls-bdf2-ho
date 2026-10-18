@@ -1,4 +1,6 @@
 import csv
+import hashlib
+import shutil
 import json
 import os
 from pathlib import Path
@@ -82,6 +84,28 @@ runpy.run_module('surrogate.train_base', run_name='__main__')
                 self.assertEqual(a['count'], b['count'])
                 for key in ('sum', 'sumsq'):
                     torch.testing.assert_close(a[key], b[key], rtol=0, atol=0)
+
+
+            # A new geometry stage transfers weights/statistics without resuming
+            # the old schedule, reusing old case names, or touching base files.
+            source = root / 'full/last.pt'
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            narrow = root / 'narrow'
+            shutil.copytree(data, narrow)
+            coords_path = narrow / 'newtrain/fields/coords.npy'
+            np.save(coords_path, np.load(coords_path) * 1.01)
+            subprocess.run([sys.executable, '-m', 'surrogate.train_base', str(narrow),
+                            '--out', str(root / 'stage2'), '--init-from', str(source),
+                            '--iters', '2', '--batch', '1', '--latent', '8',
+                            '--mp-steps', '1', '--eval-every', '2', '--eval-cases', '1',
+                            '--lr', '1e-4'], env=env, check=True)
+            stage = torch.load(root / 'stage2/best_loss.pt', weights_only=False)
+            self.assertEqual(stage['iter'], 2)
+            self.assertEqual(stage['initialization']['sha256'], digest)
+            self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), digest)
+            self.assertGreater(stage['norms'][0]['count'], full['norms'][0]['count'])
+            self.assertEqual(stage['best_training_loss'], stage['training_loss'])
+            self.assertEqual(stage['args']['lr'], 1e-4)
 
 
 if __name__ == '__main__':

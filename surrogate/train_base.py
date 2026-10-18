@@ -1,4 +1,4 @@
-"""Train the fixed-geometry base model from scratch, or resume a complete checkpoint.
+"""Train the base model, warm-start a geometry curriculum, or resume a checkpoint.
 
 Uses the existing reference recipe: position noise with corrected targets, one-step
 loss, and running normalisers. Validation is required; test cases are never used
@@ -56,6 +56,8 @@ def main():
     ap.add_argument("--refresh-every", type=int, default=0,
                     help="admit newly completed training cases every N iterations (0: fixed dataset)")
     ap.add_argument("--validate-mean", action="store_true", help="validate admitted simulations against the mean campaign design")
+    ap.add_argument("--init-from", type=Path, default=None,
+                    help="start a new curriculum stage from saved model/normalisers; reset optimiser and schedule")
     ap.add_argument("--resume", type=Path, default=None, help="resume this training run, including optimiser and normalisers")
     ap.add_argument("--ema", action="store_true", help="track + evaluate/save EMA weights")
     ap.add_argument("--ema-decay", type=float, default=0.999)
@@ -68,6 +70,10 @@ def main():
         ap.error("eval-every and iters must be divisible by accum")
     if a.refresh_every < 0:
         ap.error("refresh-every must be nonnegative")
+    if a.resume and a.init_from:
+        ap.error("--resume and --init-from are mutually exclusive")
+    if a.init_from and a.out.resolve() == a.init_from.resolve().parent:
+        ap.error("curriculum output must differ from the source checkpoint directory")
     if a.out.exists() and any(a.out.iterdir()) and not a.resume:
         ap.error("output directory is not empty; use --resume or a new --out")
     torch.manual_seed(a.seed)
@@ -92,6 +98,15 @@ def main():
     if not train or not val:
         raise SystemExit("both train and validation cases are required")
     resume = torch.load(a.resume, map_location="cpu", weights_only=False) if a.resume else None
+    initial = torch.load(a.init_from, map_location="cpu", weights_only=False) if a.init_from else None
+    transfer = resume or initial
+    provenance = resume.get("initialization") if resume else None
+    if initial:
+        if initial["hparams"] != dict(latent=a.latent, mp_steps=a.mp_steps, coeff_dim=0):
+            raise SystemExit("initial checkpoint architecture does not match")
+        provenance = dict(checkpoint=str(a.init_from.resolve()),
+                          sha256=hashlib.sha256(a.init_from.read_bytes()).hexdigest(),
+                          iteration=initial["iter"], training_loss=initial.get("training_loss"))
     if resume:
         for key in ("iters", "batch", "lr", "latent", "mp_steps", "noise_pos", "accum", "ema", "ema_decay", "seed", "eval_cases", "eval_every", "refresh_every", "validate_mean"):
             if resume["args"].get(key, ap.get_default(key)) != getattr(a, key):
@@ -107,18 +122,21 @@ def main():
         validate(ds.root, names=[c.name for c in train + val])
     node_dim = NODE_IN
     ref = np.mean([c.coords for c in train], axis=0)
-    aug = resume["aug"] if resume else build_augmented_graph(ref, ds.edges, **AUG_KW)
+    aug = transfer["aug"] if transfer else build_augmented_graph(ref, ds.edges, **AUG_KW)
+    if transfer and (aug["n_real"] != ds.n_nodes or not np.array_equal(
+            transfer.get("mesh_cells", ds.cells), ds.cells)):
+        raise SystemExit("initial checkpoint mesh topology does not match")
     g = Graph(aug, ds.tags, dev)
     model = MeshGraphNet(node_dim, EDGE_IN, 3, latent=a.latent, mlp_hidden=a.latent,
                          processor_steps=a.mp_steps).to(dev)
     init_decoder_zero(model)
-    if resume:
-        model.load_state_dict(resume["raw_model"])
+    if transfer:
+        model.load_state_dict(transfer["raw_model"])
     print(f"device={dev}  train={len(train)} val/test={len(val)}  graph: {aug['n_real']} real + "
           f"{aug['n_total'] - aug['n_real']} virtual nodes, {aug['n_edges']} edges, "
           f"params={sum(p.numel() for p in model.parameters()) / 1e6:.2f}M  "
           f"batch={a.batch} accum={a.accum} noise_pos={a.noise_pos} gamma={NOISE_GAMMA} "
-          f"geometry=PCA-mean", flush=True)
+          f"geometries={len({c.geom for c in train})}", flush=True)
     a.out.mkdir(parents=True, exist_ok=True)
     opt = torch.optim.Adam(model.parameters(), lr=a.lr)
     n_opt = max(1, a.iters // a.accum)
@@ -132,11 +150,15 @@ def main():
     if resume:
         opt.load_state_dict(resume["optimizer"])
         sched.load_state_dict(resume["scheduler"])
-        for norm, state in zip((xn, en, yn), resume["norms"]):
-            norm.load(state)
-            norm.frozen = False
         if ema is not None:
             ema = {k: v.to(dev) for k, v in resume["ema"].items()}
+    if transfer:
+        for norm, state in zip((xn, en, yn), transfer["norms"]):
+            norm.load(state)
+            norm.frozen = False
+    if initial:
+        print(f"[init] loaded weights and normalisers: {provenance}; new optimiser/schedule", flush=True)
+    best_training_loss = resume.get("best_training_loss", float("inf")) if resume else float("inf")
     samples = [(i, n) for i, c in enumerate(train) for n in range(c.steps)]
 
     def load(cases, ns):
@@ -265,11 +287,16 @@ def main():
                   f"  lr {sched.get_last_lr()[0]:.2e}  ({time.time() - t0:.0f}s)"
                   f"  kin {run_kin / window:.4f}"
                   f"  upd {upd:.2f} um", flush=True)
+            training_loss = run_loss / window
+            loss_improved = training_loss < best_training_loss
+            best_training_loss = min(best_training_loss, training_loss)
             run_loss = run_kin = 0.0
             window = 0
             improved = rmse < best
             best = min(best, rmse)
             ck = dict(model=model.state_dict(), iter=it, val_rollout_rmse=rmse,
+                      training_loss=training_loss, best_training_loss=best_training_loss,
+                      initialization=provenance, mesh_cells=ds.cells,
                       raw_model=raw_sd if raw_sd is not None else model.state_dict(),
                       optimizer=opt.state_dict(), scheduler=sched.state_dict(), ema=ema,
                       best=best, numpy_rng=rng.bit_generator.state,
@@ -284,6 +311,9 @@ def main():
                       data=str(ds.root), args=vars(a))
             torch.save(ck, a.out / "last.pt.tmp")
             (a.out / "last.pt.tmp").replace(a.out / "last.pt")
+            if loss_improved:
+                torch.save(ck, a.out / "best_loss.pt.tmp")
+                (a.out / "best_loss.pt.tmp").replace(a.out / "best_loss.pt")
             if improved:
                 torch.save(ck, a.out / "best.pt.tmp")
                 (a.out / "best.pt.tmp").replace(a.out / "best.pt")
