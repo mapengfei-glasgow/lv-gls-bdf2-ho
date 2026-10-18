@@ -1,78 +1,125 @@
-# 复现、取数据与分享
+# Reproduce from a clean clone
 
-## 1. 仓库里有什么、没有什么
+This branch contains the solver, emulator, PCA basis, mesh topology and rule-based
+fibre generator. No other repository or external geometry dataset is required.
+Generated meshes, simulation data, checkpoints and report outputs are excluded
+from Git; generate them on the destination machine.
 
-| 在仓库里（约 12 MB） | 不在仓库里（可重新生成，本地约 1.9 GB） |
-|---|---|
-| 代码 `lvsolver/`、`tools/`、运行脚本 `*.command` | VTK 帧 `results*/*/vtk/`（ParaView 用，占 1.9 GB 的绝大部分） |
-| 网格 `mesh/lv_aha17_v2_plain/`（972 单元）、`mesh/dalton_geom_0000/`（真实 LV，59940 单元） | 生成的加密网格 `mesh/lv_plain_h*/`（`convergence.command` 自动生成） |
-| 每个算例的 `monitor.csv`、`metadata.json`、`validation.json`、汇总 `summary.md`、`convergence.md` | 日志 `log.txt`、`verify.txt` |
-| 论文 4.6 节：`paper/sec46_lv/`（tex、图、数据、作图脚本） | |
-
-## 2. 环境
+## Clone and install
 
 ```bash
-conda env create -n lv0d3d -f environment.yml     # DOLFINx 0.11.0, PETSc (real), meshio 5.3.5, gmsh
+git clone --branch restructure-repository --single-branch \
+    https://github.com/mapengfei-glasgow/lv-gls-bdf2-ho.git
+cd lv-gls-bdf2-ho
+conda env create -f environment.yml
+conda env create -f environment_ml.yml
 ```
 
-已在 macOS arm64 上测试（DOLFINx 0.11.0 / PETSc 3.25.5 / Python 3.12.13）。Linux 也应能运行，但未测试。
-`*.command` 文件是普通 bash 脚本：在 macOS 上双击即可；在 Linux 上用 `bash xxx.command lv0d3d` 运行。
+The solver environment is `lv0d3d` (DOLFINx 0.11.0 and real-valued PETSc); the
+training environment is `lvml` (PyTorch and numerical/plotting packages). Linux
+and macOS have been used. CUDA training requires a compatible NVIDIA driver and
+CUDA-enabled PyTorch installation. The base trainer otherwise uses CPU; it does
+not select Apple MPS. Installing these dependencies requires package downloads,
+but does not require cloning another project.
 
-## 3. 重新跑出结果
+For geometry generation alone, a Python environment with
+`pip install -r geometry/requirements.txt` is sufficient. PyVista/GIF rendering
+additionally needs `experiments/mean_base/report/render-requirements.txt` and
+working offscreen VTK support.
 
-| 脚本 | 内容 | 输出 | macOS 上耗时 |
-|---|---|---|---|
-| `run_all.command` | 10 个算例（P1 / Lagrange / GLS 各变体，972 单元网格） | `results/` | 约 5 分钟 |
-| `convergence.command` | 用 gmsh 生成 5 级网格，GLS（$C_c=0.1$）网格加密 | `mesh/lv_plain_h*/`、`results_convergence/` | 约 15 分钟 |
-| `paper/sec46_lv/run_paper_case.command` | 论文 4.6 节算例（h = 0.35，$\mu_{\rm eff}$ 含 fs 项），并重新作图 | `results_paper/`、`paper/sec46_lv/figures/` | 约 6 分钟 |
-
-跑完后，与仓库里提交的结果逐列比较：
+## Small checks before a large campaign
 
 ```bash
-python tools/compare_runs.py results --ref-git HEAD      # 默认容差 1e-10
+conda run -n lvml python -m unittest discover -s tests -v
+conda run -n lvml python geometry/generate.py --out geometry/generated/mean
+conda run -n lvml python tools/check_mesh.py geometry/generated/mean --strict
+conda run -n lv0d3d python -m lvsolver.run \
+    --mesh geometry/generated/mean --method gls --tau pdf --include-fs \
+    --steps 2 --no-vtk --out results/pca_mean_smoke
 ```
 
-`run_all.command` 会自动做这一步。在同一平台上结果应逐位一致。换平台时，`V_mL`（Delaunay 体积估计）可能相差几个百分点，其余量应在舍入误差量级。
+These checks do not train a useful model or establish full-cycle solver accuracy.
+Geometry output directories must be empty/new. By default mesh coordinates are
+converted from centimetres to metres by the solver.
 
-**注意：** 加密网格由 gmsh 现场生成，gmsh 版本不同时网格可能不同（例如 h = 1.5 在一个版本下是 899 单元，另一个版本是 972 单元）。
-复现前先核对单元数：h = 1.5 / 1.0 / 0.7 / 0.5 / 0.35 应分别为 899 / 1921 / 3786 / 8954 / 21707 个单元（见 `mesh/lv_plain_h*/info.json`）。
-如果单元数不同，结果会有差别但结论相同。若要逐位复现，需要另外传递 `mesh/lv_plain_h*/`（h = 0.35 约 3 MB）。
+## Mean-geometry data and training
 
-## 4. 自己取数据重新画图
+Use absolute interpreter paths from your own environments:
 
-| 想画什么 | 用哪个文件 |
-|---|---|
-| 某个算例的时间曲线（体积、$J$、位移、压力、Newton 次数、残量） | `results*/<case>/monitor.csv`，一行对应一个时间步，列名见表头 |
-| 算例的参数和配置 | `results*/<case>/metadata.json` |
-| 各算例的汇总统计 | `results*/<case>/validation.json`、`results/summary.md` |
-| 网格加密对比 | `results_convergence/*/monitor.csv`、`results_convergence/convergence.md`；精确腔体体积用 `tools/convergence.py` 里的 `cavity_volume(<result_dir>)` |
-| 论文 4.6 节的曲线 | `paper/sec46_lv/data/lv_timeseries.csv`（含精确腔体体积、长轴长度、赤道壁厚），作图脚本 `paper/sec46_lv/make_figures.py` |
-| 从别的算例重新提取 4.6 节那种数据 | `python paper/sec46_lv/extract_data.py <result_dir> out.csv` |
-| 三维场（位移、速度、压力、$J$、纤维、$\mu_{\rm eff}$、$\tau_m$、$\tau_c$） | `results*/<case>/vtk/<method>.pvd`（ParaView），第 k 帧对应 $t=0.005(k+1)$ s |
+```bash
+export SOLVER_PY="$(conda run -n lv0d3d python -c 'import sys; print(sys.executable)')"
+export TRAIN_PY="$(conda run -n lvml python -c 'import sys; print(sys.executable)')"
+mkdir -p surrogate_data.mean_base/_campaign
+JOBS=4 CUDA_VISIBLE_DEVICES=0 bash experiments/mean_base/run.sh \
+    > surrogate_data.mean_base/_campaign/training.log 2>&1
+```
 
-注意：`monitor.csv` 里的 `V_mL` 是 Delaunay 估计，大变形时不可靠；腔体体积请用 `cavity_volume` 或 `lv_timeseries.csv` 里的 `V_cavity_mL`。
+This is a substantial calculation: 1,000 simulations with 200 time steps, followed
+by 120,000 training iterations. It creates `surrogate_data.mean_base/` and
+`surrogate_runs/mean_base/`. Re-running skips completed simulations and resumes
+training with the original settings. See [the campaign guide](experiments/mean_base/README.md).
 
-## 5. 真实 LV 网格（Dalton 数据集）
+To inspect data preparation on a smaller design, choose a separate output root:
 
-`mesh/dalton_geom_0000/` 来自 huggingface.co/datasets/mapengfei/dalton-lv-meshes（geom_0000）。其他几何可以用 `bash mesh/download_dalton.command 0007` 下载。
-这个网格的坐标单位是 cm，长轴为 $x$，基底在 $x=0$ 平面（meta.json 里的 `base_z` 名称有误导）；面标签 5 = 基底、6 = 内膜、7 = 外膜，所有边界面都有标签；四面体全部正向。
+```bash
+conda run -n lvml python experiments/mean_base/prepare.py \
+    --data surrogate_data.mean_smoke --cases 10
+```
 
-**纤维场有问题，暂不能用于计算。** 纤维、sheet、normal 在每个单元上都是单位向量且两两正交，所以参考构形无应力；但纤维方向和几何对不上：
-只有 42% 的心室中段单元的纤维落在心壁切平面 30° 以内（理想网格为 97–100%），螺旋角沿透壁方向没有变化（约 +2°，理想网格为 +46° → −49°），
-相邻单元的纤维一致性（中位数 0.37）甚至低于随机单元对（0.54）。尝试过按顶点编号重排单元、48 种坐标轴置换加符号，都不能修复。
-这说明纤维数组与单元的对应关系（或所用的坐标系）在生成数据集时出了错。
+This generates geometry and parameters, not simulation trajectories. To generate
+those trajectories, use `python -m surrogate.generate` in the solver environment
+with that manifest and its `_geometry/` directory as `--mesh-root`.
 
-因此计算时改用规则纤维：`python geometry/fibers.py mesh/dalton_geom_0000 mesh/dalton_geom_0000_rb`
-（P1 Laplace 透壁坐标，螺旋角内膜 +60° → 外膜 −60°，sheet 取透壁方向，约定与理想网格相同，约 2 秒）。
-生成的网格通过检查：切平面内 100%，螺旋角 +44° → −46°，相邻一致性 0.99。它属于生成网格，不纳入 git。
+## Narrow-geometry curriculum
 
-批量处理整个数据集（服务器）：`bash tools/batch_dalton.sh DATA_DIR OUT_DIR JOBS [ID ...]`，汇总：`python tools/collect_dalton.py OUT_DIR DATA_DIR`。
+After the mean campaign completes:
 
-检查工具：`python tools/check_mesh.py mesh/<dir> --strict`。`run_dalton.command` 会先生成规则纤维、再运行这项检查，不通过就停止（设置 `FORCE=1` 可强制运行）。
+```bash
+conda run -n lv0d3d python experiments/geometry_narrow/prepare.py
+conda run -n lv0d3d python -m surrogate.generate \
+    surrogate_data.geometry_narrow/params.csv surrogate_data.geometry_narrow \
+    --mesh-root surrogate_data.geometry_narrow/_geometry --jobs 4
+```
 
-## 6. 分享给别人
+The design has 600 cases (384 training / 102 validation / 114 testing). Completed
+matching mean trajectories are reused; missing trajectories are generated.
+The validator checks every case. The training launcher requires the campaign's
+`validated.done` sentinel; on a single machine, create it only after successful
+validation:
 
-- **快照压缩包（推荐）：** 在仓库根目录运行 `git archive --format=zip -o dist/lvsolver.zip HEAD`，得到只含已提交文件的 zip（约 6 MB）。对方解压后按第 2、3 节操作即可。
-- **带完整历史：** `git bundle create dist/lvsolver.bundle --all`；对方运行 `git clone lvsolver.bundle lvsolver` 即可得到完整仓库。
-- **长期协作：** 推送到 GitHub 或 GitLab 的私有仓库。
-- VTK 结果不要打包，对方运行脚本就能重新生成。如果对方只需要看 ParaView 图而不想运行，可以单独打包某一个算例的 `vtk/` 文件夹（例如 `results_paper/gls_pdf_fs_h0.35/vtk`，约 570 MB，压缩后会小一些）。
+```bash
+mkdir -p surrogate_data.geometry_narrow/_campaign
+conda run -n lv0d3d python experiments/geometry_narrow/validate.py surrogate_data.geometry_narrow \
+    && touch surrogate_data.geometry_narrow/_campaign/validated.done
+```
+
+The mean command above records its log in the location used by the narrow
+launcher to rank older checkpoints without an embedded training-loss value.
+New checkpoints also store training loss directly.
+
+Then start a separate curriculum run:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash experiments/geometry_narrow/train.sh
+```
+
+The narrow launcher requires CUDA and selects the saved base snapshot with the
+lowest recorded training loss. It refuses to overwrite an existing narrow run;
+base checkpoints are read only. See [the narrow campaign guide](experiments/geometry_narrow/README.md)
+for retries, provenance and resuming. Euclid inventories and worker launchers are
+optional deployment helpers; another machine does not need Euclid access.
+
+## Solver benchmarks and reports
+
+`run_all.command` and `convergence.command` remain supported Bash entry points for
+the solver benchmark and mesh-refinement study. They use bundled tools and meshes.
+Historical result tables and paper sources are not included. Comparisons against
+missing Git reference results print `NO REF`; they do not establish regression
+agreement. These scripts replace their own named benchmark outputs when rerun.
+
+The obsolete external-dataset download, Dalton-paper runner and old surrogate
+smoke launcher have been removed. Use the PCA workflows above.
+
+Model evaluation, error plots and PyVista/GIF reproduction are described in
+[the report guide](experiments/mean_base/report/README.md). Arrays, trained weights
+and simulation results must be generated before those reports can run.

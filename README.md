@@ -3,10 +3,12 @@
 Self-contained PCA geometry generation: see [geometry/README.md](geometry/README.md).
 The PCA basis, mesh topology, and generator are bundled; generated geometries are not tracked.
 
-The PCA mean-geometry base completed 120,000 training iterations. Narrow geometry data
-preparation is the next curriculum stage. See
+The PCA mean-geometry base completed 120,000 training iterations. The narrow geometry dataset is validated and its separate training stage has started. See
 [experiments/mean_base/README.md](experiments/mean_base/README.md) for the data design,
-distributed generation, and resumable training workflow. Final evaluation and
+distributed generation, and resumable training workflow. No other project checkout or external geometry dataset is required.
+Install the environments, then regenerate simulations and train your own model;
+generated data and checkpoints are intentionally excluded from Git.
+See [REPRODUCE.md](REPRODUCE.md) for a clean-clone setup. Final evaluation and
 PyVista/GIF reproduction are documented in [the report workflow](experiments/mean_base/report/README.md).
 
 理想化左心室（`mesh/lv_aha17_v2_plain`，972 个 P1 四面体，cm → m）在给定载荷下的一个心动周期
@@ -58,7 +60,8 @@ bash run_all.command            # 或在 Finder 里双击
 ```
 
 `run_all.command` 依次运行 10 个算例、逐个校验，然后写 `results/summary.md`，
-并与上一次提交的 `results/*/monitor.csv` 逐列比较（`tools/compare_runs.py`，默认容差 $10^{-10}$）。
+并尝试与 Git 中已有的参考结果比较（`tools/compare_runs.py`）。当前版本不提交历史结果，
+没有参考文件时会显示 `NO REF`；这不表示已验证数值回归。
 在 macOS arm64 上总共约 5 分钟。
 
 | 算例 | 命令参数 |
@@ -100,9 +103,8 @@ tools/convergence.py   网格加密汇总、精确腔体体积 cavity_volume
 tools/generate_mesh.py 生成 lv_aha17_v2_plain 网格（需 gmsh），例：
                        python tools/generate_mesh.py --mesh-size 1.0 \
                          --xdmf mesh/lv_plain_h1.0/lv_aha17_v2_plain_mesh.xdmf --out /tmp/lv_bin
-mesh/                  lv_aha17_v2_plain（972 单元）、dalton_geom_0000（真实 LV）、download_dalton.command
+mesh/                  lv_aha17_v2_plain（972 单元）、dalton_geom_0000（历史参考网格）
 convergence.command    网格加密研究 -> results_convergence/
-paper/sec46_lv/        论文 4.6 节：tex、图、数据、run_paper_case.command -> results_paper/
 ```
 
 ## 解释范围
@@ -121,12 +123,18 @@ paper/sec46_lv/        论文 4.6 节：tex、图、数据、run_paper_case.comm
 
 ## 代理模型（surrogate/）
 
-训练数据由本文 GLS 求解器生成（`lvsolver.run --no-vtk --save-fields`），网格来自 HF Dalton 数据集，纤维用 `geometry/fibers.py` 生成（+60°/−60°），不使用数据集自带纤维。
-除几何外还变化 8 个参数：$a,b,a_f,b_f$（名义值 ×[2/3, 1.5]，对数均匀），$T_a$ 幅值、$p_{\mathrm{ED}}$、$p$ 收缩幅值、周期 $T$（范围见 `surrogate/params.py`）。
+当前工作流使用仓库内的 PCA 基底与拓扑生成 LV 几何，并重新生成规则纤维
+（内膜 +60°、外膜 −60°）。不需要外部 Dalton 数据集，也不需要其他仓库。
+材料与载荷参数范围见 `surrogate/params.py`。
 
 ```bash
-bash surrogate/run_smoke.command          # 下载 10 个几何 → Sobol 参数 → 求解 → 训练 → 评估
-python -m surrogate.sample_params --ids 0000-2966 --out params_all.csv    # 服务器全量
-python -m surrogate.generate params_all.csv surrogate_data --jobs 32
+conda env create -f environment.yml
+conda env create -f environment_ml.yml
+SOLVER_PY="$(conda run -n lv0d3d python -c 'import sys; print(sys.executable)')" \
+TRAIN_PY="$(conda run -n lvml python -c 'import sys; print(sys.executable)')" \
+JOBS=4 CUDA_VISIBLE_DEVICES=0 bash experiments/mean_base/run.sh
 ```
-训练环境：`conda env create -f environment_ml.yml`（lvml）。数据格式见 `lvsolver/export.py`。
+
+该命令生成 1,000 个平均几何样本、训练并评估模型，计算量较大。
+小规模检查、窄几何数据生成和课程学习步骤见 [REPRODUCE.md](REPRODUCE.md)。
+训练需要重新生成数据；已训练的权重不随 Git 发布。

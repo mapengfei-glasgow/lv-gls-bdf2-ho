@@ -29,7 +29,7 @@ def find_mesh(root, gid):
     for d in (root / f"dalton_geom_{gid}", root / f"geom_{gid}"):
         if (d / "dalton_lv_mesh.xdmf").exists():
             return d
-    raise FileNotFoundError(f"geometry {gid} not found under {root} (mesh/download_dalton.command {gid})")
+    raise FileNotFoundError(f"geometry {gid} not found under {root} (generate it with geometry/generate.py and pass --mesh-root)")
 
 
 def done(d):
