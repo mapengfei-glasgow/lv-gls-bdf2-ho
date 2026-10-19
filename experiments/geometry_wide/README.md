@@ -1,5 +1,9 @@
 # Wider geometry data: ±0.5 sigma, first 16 PCA modes
 
+**Superseded:** the user requested joint geometry/physics sampling instead of
+this crossed design. Its workers have been stopped and outputs preserved. Use
+[the joint campaign](../geometry_joint/README.md) for the current workflow.
+
 This is a **data-generation stage**, independent of the running narrow model.
 Material/load/cycle parameter vectors and their ranges are unchanged. It expands
 geometry coefficient bounds from ±0.25σ to ±0.5σ on the first 16 modes; the other

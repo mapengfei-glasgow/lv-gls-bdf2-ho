@@ -109,6 +109,14 @@ base checkpoints are read only. See [the narrow campaign guide](experiments/geom
 for retries, provenance and resuming. Euclid inventories and worker launchers are
 optional deployment helpers; another machine does not need Euclid access.
 
+## Joint wider-geometry data
+
+The next data-only stage samples geometry and physical parameters together,
+using 600 distinct 24-dimensional Sobol pairs. Geometry varies over ±0.5σ on
+the first 16 PCs; physical ranges are unchanged. It needs no existing data.
+See [the joint campaign guide](experiments/geometry_joint/README.md) for commands,
+strict geometry checks, CPU workers and independent validation.
+
 ## Solver benchmarks and reports
 
 `run_all.command` and `convergence.command` remain supported Bash entry points for
