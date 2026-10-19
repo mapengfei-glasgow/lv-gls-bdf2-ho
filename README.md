@@ -10,6 +10,8 @@ Install the environments, then regenerate simulations and train your own model;
 generated data and checkpoints are intentionally excluded from Git.
 See [REPRODUCE.md](REPRODUCE.md) for a clean-clone setup. Final evaluation and
 PyVista/GIF reproduction are documented in [the report workflow](experiments/mean_base/report/README.md).
+The next data-only geometry expansion (±0.5σ, unchanged physical parameters) is
+documented in [the wider campaign](experiments/geometry_wide/README.md).
 
 理想化左心室（`mesh/lv_aha17_v2_plain`，972 个 P1 四面体，cm → m）在给定载荷下的一个心动周期
 （$\Delta t = 0.005$ s，200 步）。三种体积约束离散共用同一个模型，差别只在单元、未知量和不可压缩处理。
