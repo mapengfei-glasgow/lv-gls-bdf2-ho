@@ -12,6 +12,8 @@ See [REPRODUCE.md](REPRODUCE.md) for a clean-clone setup. Final evaluation and
 PyVista/GIF reproduction are documented in [the report workflow](experiments/mean_base/report/README.md).
 The next data-only geometry expansion (±0.5σ, unchanged physical parameters) is
 sampled jointly with physical parameters; see [the joint campaign](experiments/geometry_joint/README.md).
+Automatic simulation/training continuation through ±0.5σ and ±1.0σ is documented
+in [the sequential curriculum controller](experiments/curriculum/README.md).
 
 理想化左心室（`mesh/lv_aha17_v2_plain`，972 个 P1 四面体，cm → m）在给定载荷下的一个心动周期
 （$\Delta t = 0.005$ s，200 步）。三种体积约束离散共用同一个模型，差别只在单元、未知量和不可压缩处理。
